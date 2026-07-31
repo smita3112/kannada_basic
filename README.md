@@ -32,6 +32,31 @@ Then open:
 
 `http://localhost:8080`
 
+## Publish on GitHub Pages
+
+This repository is configured with a GitHub Actions workflow at:
+
+- `.github/workflows/pages.yml`
+
+### One-time setup in GitHub
+
+1. Push your latest `main` branch to GitHub.
+2. Open repository settings: `Settings` → `Pages`.
+3. Under **Build and deployment**, choose:
+   - **Source**: `GitHub Actions`
+4. Wait for the `Deploy static site to GitHub Pages` workflow to complete.
+
+### Your public URL
+
+- Default project URL format:
+  - `https://<github-username>.github.io/<repository-name>/`
+- For this repo, it should be:
+  - `https://smita3112.github.io/kannada_basic/`
+
+### Optional custom domain
+
+If you buy a domain later, add it in `Settings` → `Pages` → `Custom domain` and configure DNS at your registrar.
+
 ## Notes
 
 - The app uses browser speech by default.
