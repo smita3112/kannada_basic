@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kannada Learning Match Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>Kannada Match Game</h1>
+        <p>Match the sound (left) with the Kannada form (right).</p>
+      </header>
+
+      <section class="controls">
+        <label for="modeSelect">Mode</label>
+        <select id="modeSelect">
+          <option value="game" selected>Match Game</option>
+          <option value="learn">Learn Gunitaakshara</option>
+        </select>
+
+        <label for="levelSelect" class="game-only">Level</label>
+        <select id="levelSelect" class="game-only"></select>
+
+        <label for="learnGroupSelect" class="learn-only hidden">Group</label>
+        <select id="learnGroupSelect" class="learn-only hidden">
+          <option value="A">A: ಕ ಕಾ ಕಿ ಕೀ</option>
+          <option value="B">B: ಕು ಕೂ ಕೆ ಕೇ</option>
+          <option value="C">C: ಕೈ ಕೊ ಕೋ ಕೌ</option>
+        </select>
+
+        <label for="itemCount" class="game-only">Pairs</label>
+        <select id="itemCount" class="game-only">
+          <option value="6">6</option>
+          <option value="8" selected>8</option>
+          <option value="10">10</option>
+          <option value="12">12</option>
+        </select>
+
+        <button id="newRoundBtn" class="game-only" type="button">New Round</button>
+        <button id="restartLearnBtn" class="learn-only hidden" type="button">Restart Lesson</button>
+      </section>
+
+      <section class="status" aria-live="polite">
+        <p id="statusText">Choose a level and start matching.</p>
+        <p id="scoreText">Score: 0 / 0</p>
+      </section>
+
+      <section class="board">
+        <div>
+          <h2>Sound</h2>
+          <div id="soundColumn" class="column"></div>
+        </div>
+
+        <div>
+          <h2>Kannada</h2>
+          <div id="scriptColumn" class="column"></div>
+        </div>
+      </section>
+
+      <section id="learnPanel" class="learn-panel hidden" aria-live="polite">
+        <h2>Gunitaakshara Learning</h2>
+        <p id="learnStepText">Step</p>
+
+        <div id="learnCard" class="learn-card"></div>
+
+        <div id="learnPrompt" class="learn-prompt"></div>
+
+        <div id="learnOptions" class="learn-options"></div>
+
+        <button id="learnPrimaryBtn" type="button">Next</button>
+      </section>
+
+      <footer class="footer">
+        <p>Tip: In Match mode, tap Sound cards (left column) to hear pronunciation.</p>
+      </footer>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

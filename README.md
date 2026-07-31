@@ -1,0 +1,59 @@
+# Kannada Learning MVP
+
+A simple offline web app to help kids practice Kannada matching:
+
+- Left column: sound (Romanized)
+- Right column: Kannada script
+- Match pairs with instant feedback
+
+## Included levels
+
+- Varnamaale (basics)
+- Gunitaakshara (`ಕ` series)
+- Ottakshara (basic conjuncts)
+
+## Modes
+
+- `Match Game`: classic left-right matching
+- `Learn Gunitaakshara`: guided lesson for `ಕ` series in 3 groups
+  - Group A: `ಕ ಕಾ ಕಿ ಕೀ`
+  - Group B: `ಕು ಕೂ ಕೆ ಕೇ`
+  - Group C: `ಕೈ ಕೊ ಕೋ ಕೌ`
+
+## Run locally
+
+From this folder:
+
+```bash
+python3 -m http.server 8080
+```
+
+Then open:
+
+`http://localhost:8080`
+
+## Notes
+
+- The app uses browser speech by default.
+- If you add `audio` path per item in `data.js`, it will play that recording first.
+- Place your recordings in these folders:
+  - `audio/varnamaale/`
+  - `audio/gunita/`
+  - `audio/ottakshara/`
+- Recommended file naming (if you choose to map by id):
+  - `audio/varnamaale/aa.mp3`
+  - `audio/gunita/ki.mp3`
+  - `audio/ottakshara/kka.mp3`
+- Supported formats: `.mp3`, `.m4a`, `.wav`.
+
+Example mapping in `data.js`:
+
+```js
+{ id: "aa", sound: "ā (aa)", text: "ಆ", audio: "audio/varnamaale/aa.mp3" }
+```
+
+### Best audio quality tips
+
+- Record one clear syllable per file with a short pause at end.
+- Use a quiet room and hold phone mic at consistent distance.
+- Keep each clip around `0.5s` to `1.2s` for quick response.
