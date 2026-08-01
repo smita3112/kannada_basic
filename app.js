@@ -3,13 +3,18 @@ const levelSelect = document.getElementById("levelSelect");
 const itemCountSelect = document.getElementById("itemCount");
 const learnTopicSelect = document.getElementById("learnTopicSelect");
 const newRoundBtn = document.getElementById("newRoundBtn");
+const nextSetBtn = document.getElementById("nextSetBtn");
 const restartLearnBtn = document.getElementById("restartLearnBtn");
 const soundColumn = document.getElementById("soundColumn");
 const scriptColumn = document.getElementById("scriptColumn");
 const statusText = document.getElementById("statusText");
 const scoreText = document.getElementById("scoreText");
 const streakText = document.getElementById("streakText");
+const gameProgressText = document.getElementById("gameProgressText");
 const board = document.querySelector(".board");
+const mistakeSummary = document.getElementById("mistakeSummary");
+const mistakeSummaryEmpty = document.getElementById("mistakeSummaryEmpty");
+const mistakeSummaryList = document.getElementById("mistakeSummaryList");
 const learnPanel = document.getElementById("learnPanel");
 const learnTitle = document.getElementById("learnTitle");
 const learnStepText = document.getElementById("learnStepText");
@@ -54,6 +59,9 @@ const state = {
   correctCount: 0,
   gameScore: 0,
   gameMistakes: 0,
+  gamePageIndex: 0,
+  gamePages: [],
+  gameMistakeById: {},
   streak: 0,
   bestStreak: 0,
   matchedIds: new Set(),
@@ -101,11 +109,44 @@ function getBaseSound(soundText) {
   return soundText.split("(")[0].trim();
 }
 
+function updateGameProgressText() {
+  if (!gameProgressText) {
+    return;
+  }
+  const totalSets = state.gamePages.length;
+  const currentSet = totalSets === 0 ? 0 : state.gamePageIndex + 1;
+  gameProgressText.textContent = `Set: ${currentSet} / ${totalSets}`;
+}
+
+function renderGameMistakeSummary() {
+  mistakeSummaryList.innerHTML = "";
+  const entries = Object.entries(state.gameMistakeById)
+    .map(([itemId, count]) => {
+      const item = state.gamePages.flat().find((candidate) => candidate.id === itemId);
+      return { itemId, count, item };
+    })
+    .filter((entry) => entry.count > 0 && entry.item)
+    .sort((left, right) => right.count - left.count);
+
+  if (entries.length === 0) {
+    mistakeSummaryEmpty.classList.remove("hidden");
+    return;
+  }
+
+  mistakeSummaryEmpty.classList.add("hidden");
+  entries.forEach((entry) => {
+    const row = document.createElement("li");
+    row.textContent = `${entry.item.text} (${getBaseSound(entry.item.sound)}): ${entry.count}`;
+    mistakeSummaryList.appendChild(row);
+  });
+}
+
 function updateStatus(message) {
   statusText.textContent = message;
   if (state.mode === "game") {
     scoreText.textContent = `Score: ${state.gameScore} | Correct: ${state.correctCount}/${state.pairs.length} | Mistakes: ${state.gameMistakes}`;
     streakText.textContent = `Streak: ${state.streak} | Best: ${state.bestStreak}`;
+    updateGameProgressText();
     return;
   }
 
@@ -188,7 +229,17 @@ function maybeCheckMatch() {
     clearSelections();
 
     if (state.correctCount === state.pairs.length) {
-      updateStatus("Super! All matches done 🎉");
+      const isLastSet = state.gamePageIndex >= state.gamePages.length - 1;
+      if (isLastSet) {
+        nextSetBtn.classList.add("hidden");
+        mistakeSummary.classList.remove("hidden");
+        renderGameMistakeSummary();
+        updateStatus("Session complete 🎉 You covered all sets.");
+        return;
+      }
+
+      nextSetBtn.classList.remove("hidden");
+      updateStatus("Set complete ✅ Click Next Set.");
       return;
     }
 
@@ -200,6 +251,7 @@ function maybeCheckMatch() {
   const wrongScript = state.selectedScriptId;
   state.gameScore -= 1;
   state.gameMistakes += 1;
+  state.gameMistakeById[wrongSound] = (state.gameMistakeById[wrongSound] || 0) + 1;
   state.streak = 0;
   renderBoard({ wrongSound, wrongScript });
   updateStatus("Oops ❌ (-1). Try again.");
@@ -207,6 +259,29 @@ function maybeCheckMatch() {
   setTimeout(() => {
     clearSelections();
   }, 500);
+}
+
+function createPagedSets(items, pageSize) {
+  const pages = [];
+  for (let index = 0; index < items.length; index += pageSize) {
+    pages.push(items.slice(index, index + pageSize));
+  }
+  return pages;
+}
+
+function loadGameSet(setIndex) {
+  const nextPairs = state.gamePages[setIndex] || [];
+  state.gamePageIndex = setIndex;
+  state.pairs = nextPairs;
+  state.soundCards = shuffle(nextPairs.map((item) => ({ ...item })));
+  state.scriptCards = shuffle(nextPairs.map((item) => ({ ...item })));
+  state.selectedSoundId = null;
+  state.selectedScriptId = null;
+  state.correctCount = 0;
+  state.matchedIds = new Set();
+  nextSetBtn.classList.add("hidden");
+  renderBoard();
+  updateStatus(`Set ${setIndex + 1} ready.`);
 }
 
 function renderBoard(markWrong = null) {
@@ -302,23 +377,21 @@ function buildRound() {
   }
 
   const count = Number(itemCountSelect.value);
-  const selected = shuffle(level.items).slice(0, Math.min(count, level.items.length));
+  const allItems = shuffle(level.items.map((item) => ({ ...item })));
+  const pageSize = Math.min(Math.max(count, 1), allItems.length);
 
   state.levelId = level.id;
-  state.pairs = selected;
-  state.soundCards = shuffle(selected.map((item) => ({ ...item })));
-  state.scriptCards = shuffle(selected.map((item) => ({ ...item })));
-  state.selectedSoundId = null;
-  state.selectedScriptId = null;
-  state.correctCount = 0;
+  state.gamePages = createPagedSets(allItems, pageSize);
+  state.gamePageIndex = 0;
+  state.gameMistakeById = {};
   state.gameScore = 0;
   state.gameMistakes = 0;
   state.streak = 0;
   state.bestStreak = 0;
-  state.matchedIds = new Set();
-
-  renderBoard();
-  updateStatus(`Round ready: ${level.name}`);
+  mistakeSummary.classList.add("hidden");
+  renderGameMistakeSummary();
+  loadGameSet(0);
+  updateStatus(`Session started: ${level.name}`);
 }
 
 function getGunitaItems() {
@@ -609,6 +682,13 @@ function initControls() {
   levelSelect.addEventListener("change", buildRound);
   itemCountSelect.addEventListener("change", buildRound);
   newRoundBtn.addEventListener("click", buildRound);
+  nextSetBtn.addEventListener("click", () => {
+    const canMove = state.correctCount === state.pairs.length && state.gamePageIndex < state.gamePages.length - 1;
+    if (!canMove) {
+      return;
+    }
+    loadGameSet(state.gamePageIndex + 1);
+  });
   learnTopicSelect.addEventListener("change", startLearningMode);
   restartLearnBtn.addEventListener("click", startLearningMode);
   learnPrimaryBtn.addEventListener("click", advanceLearning);

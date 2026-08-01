@@ -81,6 +81,15 @@ button {
   margin: 0.25rem 0;
 }
 
+.mistake-list {
+  margin: 0.4rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.mistake-list li {
+  margin: 0.2rem 0;
+}
+
 .board {
   margin-top: 1rem;
   display: grid;

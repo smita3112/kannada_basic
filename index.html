@@ -40,6 +40,7 @@
         </select>
 
         <button id="newRoundBtn" class="game-only" type="button">New Round</button>
+        <button id="nextSetBtn" class="game-only hidden" type="button">Next Set</button>
         <button id="restartLearnBtn" class="learn-only hidden" type="button">Restart Lesson</button>
       </section>
 
@@ -47,6 +48,7 @@
         <p id="statusText">Choose a level and start matching.</p>
         <p id="scoreText">Score: 0 / 0</p>
         <p id="streakText">Streak: 0 | Best: 0</p>
+        <p id="gameProgressText" class="game-only">Set: 0 / 0</p>
       </section>
 
       <section class="board">
@@ -59,6 +61,12 @@
           <h2>Kannada</h2>
           <div id="scriptColumn" class="column"></div>
         </div>
+      </section>
+
+      <section id="mistakeSummary" class="status hidden game-only" aria-live="polite">
+        <p><strong>Varnamaale Mistakes Summary</strong></p>
+        <p id="mistakeSummaryEmpty">No mistakes in this session 🎉</p>
+        <ul id="mistakeSummaryList" class="mistake-list"></ul>
       </section>
 
       <section id="learnPanel" class="learn-panel hidden" aria-live="polite">
