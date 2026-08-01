@@ -143,12 +143,13 @@ function getGunitaCardHTML(item, withSplit) {
   const familyClass = `gunita-family-${gunitaMeta.family}`;
   const signText = gunitaMeta.sign || "∅";
   const combined = `<span class="gunita-combo"><span class="gunita-base">ಕ</span><span class="gunita-sign ${familyClass}">${gunitaMeta.sign}</span></span>`;
+  const finalJoined = `<span class="gunita-final">${item.text}</span>`;
 
   if (!withSplit) {
-    return combined;
+    return finalJoined;
   }
 
-  return `${combined}<div class="gunita-split"><span class="gunita-base">ಕ</span> + <span class="gunita-sign ${familyClass}">${signText}</span> = ${combined}</div>`;
+  return `${finalJoined}<div class="gunita-split"><span class="gunita-base">ಕ</span> + <span class="gunita-sign ${familyClass}">${signText}</span> = ${finalJoined}</div>`;
 }
 
 function setLearnCardContent(item, withSplit = false) {

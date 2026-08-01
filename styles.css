@@ -184,7 +184,11 @@ button {
 .gunita-combo {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.02em;
+  gap: 0;
+}
+
+.gunita-final {
+  color: var(--text);
 }
 
 .gunita-base {
