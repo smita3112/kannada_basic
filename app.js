@@ -1,26 +1,47 @@
 const modeSelect = document.getElementById("modeSelect");
 const levelSelect = document.getElementById("levelSelect");
 const itemCountSelect = document.getElementById("itemCount");
-const learnGroupSelect = document.getElementById("learnGroupSelect");
+const learnTopicSelect = document.getElementById("learnTopicSelect");
 const newRoundBtn = document.getElementById("newRoundBtn");
 const restartLearnBtn = document.getElementById("restartLearnBtn");
 const soundColumn = document.getElementById("soundColumn");
 const scriptColumn = document.getElementById("scriptColumn");
 const statusText = document.getElementById("statusText");
 const scoreText = document.getElementById("scoreText");
+const streakText = document.getElementById("streakText");
 const board = document.querySelector(".board");
 const learnPanel = document.getElementById("learnPanel");
+const learnTitle = document.getElementById("learnTitle");
 const learnStepText = document.getElementById("learnStepText");
 const learnCard = document.getElementById("learnCard");
 const learnPrompt = document.getElementById("learnPrompt");
 const learnOptions = document.getElementById("learnOptions");
 const learnPrimaryBtn = document.getElementById("learnPrimaryBtn");
 
-const GUNITA_GROUPS = {
-  A: ["ka-1", "kaa", "ki", "kii"],
-  B: ["ku", "kuu", "ke", "kee"],
-  C: ["kai", "ko", "koo", "kau"],
+const LEARN_OPTION_COUNT = {
+  gunita: 4,
+  varnamaale_all: 8,
+  varnamaale_swara: 6,
+  varnamaale_vyanjana: 8,
 };
+
+const SWARA_IDS = new Set([
+  "a",
+  "aa",
+  "i",
+  "ii",
+  "u",
+  "uu",
+  "ru",
+  "e",
+  "ee",
+  "ai-vowel",
+  "o",
+  "oo",
+  "au",
+  "am",
+  "aha",
+]);
 
 const state = {
   mode: "game",
@@ -31,12 +52,17 @@ const state = {
   selectedSoundId: null,
   selectedScriptId: null,
   correctCount: 0,
+  gameScore: 0,
+  gameMistakes: 0,
+  streak: 0,
+  bestStreak: 0,
   matchedIds: new Set(),
   learn: {
-    groupKey: "A",
+    topic: "gunita",
     items: [],
     index: 0,
     score: 0,
+    mistakes: 0,
     phase: "show",
     options: [],
     selectedOptionId: null,
@@ -78,12 +104,14 @@ function getBaseSound(soundText) {
 function updateStatus(message) {
   statusText.textContent = message;
   if (state.mode === "game") {
-    scoreText.textContent = `Score: ${state.correctCount} / ${state.pairs.length}`;
+    scoreText.textContent = `Score: ${state.gameScore} | Correct: ${state.correctCount}/${state.pairs.length} | Mistakes: ${state.gameMistakes}`;
+    streakText.textContent = `Streak: ${state.streak} | Best: ${state.bestStreak}`;
     return;
   }
 
   const total = state.learn.items.length;
   scoreText.textContent = `Lesson Score: ${state.learn.score} / ${total}`;
+  streakText.textContent = `Streak: ${state.streak} | Best: ${state.bestStreak}`;
 }
 
 async function tryPlayRecordedAudio(item) {
@@ -154,6 +182,9 @@ function maybeCheckMatch() {
   if (isCorrect) {
     state.matchedIds.add(state.selectedSoundId);
     state.correctCount += 1;
+    state.gameScore += 1;
+    state.streak += 1;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
     clearSelections();
 
     if (state.correctCount === state.pairs.length) {
@@ -167,8 +198,11 @@ function maybeCheckMatch() {
 
   const wrongSound = state.selectedSoundId;
   const wrongScript = state.selectedScriptId;
+  state.gameScore -= 1;
+  state.gameMistakes += 1;
+  state.streak = 0;
   renderBoard({ wrongSound, wrongScript });
-  updateStatus("Oops ❌ Try again.");
+  updateStatus("Oops ❌ (-1). Try again.");
 
   setTimeout(() => {
     clearSelections();
@@ -277,38 +311,78 @@ function buildRound() {
   state.selectedSoundId = null;
   state.selectedScriptId = null;
   state.correctCount = 0;
+  state.gameScore = 0;
+  state.gameMistakes = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
   state.matchedIds = new Set();
 
   renderBoard();
   updateStatus(`Round ready: ${level.name}`);
 }
 
-function getGunitaItemsByGroup(groupKey) {
+function getGunitaItems() {
   const gunitaLevel = getLevelById("gunita");
   if (!gunitaLevel) {
     return [];
   }
+  return [...gunitaLevel.items];
+}
 
-  const wantedIds = new Set(GUNITA_GROUPS[groupKey]);
-  return gunitaLevel.items.filter((item) => wantedIds.has(item.id));
+function getVarnamaaleItems(topic) {
+  const varnamaaleLevel = getLevelById("varnamaale");
+  if (!varnamaaleLevel) {
+    return [];
+  }
+
+  if (topic === "varnamaale_swara") {
+    return varnamaaleLevel.items.filter((item) => SWARA_IDS.has(item.id));
+  }
+
+  if (topic === "varnamaale_vyanjana") {
+    return varnamaaleLevel.items.filter((item) => !SWARA_IDS.has(item.id));
+  }
+
+  return [...varnamaaleLevel.items];
+}
+
+function updateLearnControlsVisibility() {
+  learnTopicSelect.classList.remove("hidden");
 }
 
 function startLearningMode() {
-  const groupKey = learnGroupSelect.value;
-  const items = getGunitaItemsByGroup(groupKey);
+  const topic = learnTopicSelect.value;
+  const items = topic === "gunita" ? getGunitaItems() : getVarnamaaleItems(topic);
 
   state.mode = "learn";
-  state.levelId = "gunita";
-  state.learn.groupKey = groupKey;
+  state.levelId = topic;
+  state.learn.topic = topic;
   state.learn.items = items;
   state.learn.index = 0;
   state.learn.score = 0;
+  state.learn.mistakes = 0;
+  state.streak = 0;
+  state.bestStreak = 0;
   state.learn.phase = "show";
   state.learn.options = [];
   state.learn.selectedOptionId = null;
 
   renderLearning();
-  updateStatus(`Learning Group ${groupKey}: listen and remember.`);
+  updateLearnControlsVisibility();
+  if (topic === "gunita") {
+    learnTitle.textContent = "Gunitaakshara Learning";
+    updateStatus("Learning Gunitaakshara: listen and remember.");
+    return;
+  }
+
+  const label =
+    topic === "varnamaale_all"
+      ? "All"
+      : topic === "varnamaale_swara"
+        ? "Swara"
+        : "Vyanjana";
+  learnTitle.textContent = `Varnamaale Learning (${label})`;
+  updateStatus(`Learning Varnamaale (${label}): listen and remember.`);
 }
 
 function currentLearnItem() {
@@ -316,12 +390,10 @@ function currentLearnItem() {
 }
 
 function buildQuizOptions(correctItem) {
-  const pool = state.learn.items.filter((item) => item.id !== correctItem.id);
-  const distractor = shuffle(pool)[0];
-  if (!distractor) {
-    return [correctItem];
-  }
-  return shuffle([correctItem, distractor]);
+  const desiredCount = LEARN_OPTION_COUNT[state.learn.topic] || 6;
+  const poolWithoutCorrect = state.learn.items.filter((item) => item.id !== correctItem.id);
+  const distractors = shuffle(poolWithoutCorrect).slice(0, Math.max(desiredCount - 1, 1));
+  return shuffle([correctItem, ...distractors]);
 }
 
 function handleLearnOptionClick(optionItem) {
@@ -339,9 +411,12 @@ function handleLearnOptionClick(optionItem) {
   const isCorrect = optionItem.id === correctItem.id;
   if (isCorrect) {
     state.learn.score += 1;
+    state.streak += 1;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
     updateStatus("Correct ✅ Nice! Tap Next.");
   } else {
-    updateStatus(`Not this one. Correct answer: ${correctItem.text}`);
+    state.streak = 0;
+    updateStatus(`Wrong ❌. Correct answer: ${correctItem.text}`);
   }
 
   state.learn.phase = "feedback";
@@ -363,7 +438,16 @@ function advanceLearning() {
     state.learn.selectedOptionId = null;
     state.learn.phase = "quiz";
     renderLearning();
+    speakItem(correctItem);
     updateStatus(`Find this sound: ${getBaseSound(correctItem.sound)}`);
+    return;
+  }
+
+  if (state.learn.phase === "quiz") {
+    const quizItem = currentLearnItem();
+    if (quizItem) {
+      speakItem(quizItem);
+    }
     return;
   }
 
@@ -390,6 +474,7 @@ function renderLearning() {
 
   if (!item && state.learn.phase !== "done") {
     learnStepText.textContent = "No items found for this group.";
+    learnCard.classList.remove("hidden");
     learnCard.textContent = "-";
     learnPrompt.textContent = "Please choose another group.";
     learnOptions.innerHTML = "";
@@ -402,7 +487,8 @@ function renderLearning() {
   if (state.learn.phase === "done") {
     const total = state.learn.items.length;
     const stars = state.learn.score === total ? "⭐⭐⭐" : state.learn.score >= Math.ceil(total * 0.75) ? "⭐⭐" : "⭐";
-    learnStepText.textContent = `Completed Group ${state.learn.groupKey}`;
+    learnStepText.textContent = state.learn.topic === "gunita" ? "Completed Gunitaakshara" : "Completed Varnamaale";
+    learnCard.classList.remove("hidden");
     learnCard.textContent = stars;
     learnPrompt.textContent = `Score ${state.learn.score}/${total}. Tap Restart Lesson to practice again.`;
     learnOptions.innerHTML = "";
@@ -413,7 +499,7 @@ function renderLearning() {
 
   const stepNumber = state.learn.index + 1;
   const total = state.learn.items.length;
-  learnStepText.textContent = `Item ${stepNumber} of ${total} (Group ${state.learn.groupKey})`;
+  learnStepText.textContent = `Item ${stepNumber} of ${total}`;
 
   learnCard.textContent = item.text;
   learnCard.onclick = () => {
@@ -423,13 +509,21 @@ function renderLearning() {
   if (state.learn.phase === "show") {
     learnPrompt.textContent = `Listen and repeat: ${getBaseSound(item.sound)} (tap card to hear)`;
     learnOptions.innerHTML = "";
+    learnCard.classList.remove("hidden");
+    learnCard.textContent = item.text;
+    learnCard.onclick = () => {
+      speakItem(item);
+    };
     learnPrimaryBtn.textContent = "I Remember";
     learnPrimaryBtn.disabled = false;
     return;
   }
 
   if (state.learn.phase === "quiz") {
-    learnPrompt.textContent = `Tap Kannada for sound: ${getBaseSound(item.sound)}`;
+    learnPrompt.textContent = "Listen to the sound and pick the correct Kannada.";
+    learnCard.classList.add("hidden");
+    learnCard.textContent = "";
+    learnCard.onclick = null;
     learnOptions.innerHTML = "";
 
     state.learn.options.forEach((option) => {
@@ -441,13 +535,18 @@ function renderLearning() {
       learnOptions.appendChild(button);
     });
 
-    learnPrimaryBtn.textContent = "Choose an answer";
-    learnPrimaryBtn.disabled = true;
+    learnPrimaryBtn.textContent = "🔊 Play Sound Again";
+    learnPrimaryBtn.disabled = false;
     return;
   }
 
   if (state.learn.phase === "feedback") {
     learnPrompt.textContent = `Answer check for: ${getBaseSound(item.sound)}`;
+    learnCard.classList.remove("hidden");
+    learnCard.textContent = item.text;
+    learnCard.onclick = () => {
+      speakItem(item);
+    };
     learnOptions.innerHTML = "";
 
     state.learn.options.forEach((option) => {
@@ -510,7 +609,7 @@ function initControls() {
   levelSelect.addEventListener("change", buildRound);
   itemCountSelect.addEventListener("change", buildRound);
   newRoundBtn.addEventListener("click", buildRound);
-  learnGroupSelect.addEventListener("change", startLearningMode);
+  learnTopicSelect.addEventListener("change", startLearningMode);
   restartLearnBtn.addEventListener("click", startLearningMode);
   learnPrimaryBtn.addEventListener("click", advanceLearning);
 }

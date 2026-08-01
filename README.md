@@ -8,17 +8,18 @@ A simple offline web app to help kids practice Kannada matching:
 
 ## Included levels
 
-- Varnamaale (basics)
+- Varnamaale (full)
 - Gunitaakshara (`ಕ` series)
 - Ottakshara (basic conjuncts)
 
 ## Modes
 
 - `Match Game`: classic left-right matching
-- `Learn Gunitaakshara`: guided lesson for `ಕ` series in 3 groups
-  - Group A: `ಕ ಕಾ ಕಿ ಕೀ`
-  - Group B: `ಕು ಕೂ ಕೆ ಕೇ`
-  - Group C: `ಕೈ ಕೊ ಕೋ ಕೌ`
+- `Learning Mode` dropdown options:
+  - `Gunitaakshara`
+  - `Varnamaale (All)`
+  - `Varnamaale (Swara)`
+  - `Varnamaale (Vyanjana)`
 
 ## Run locally
 

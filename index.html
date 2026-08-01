@@ -17,18 +17,19 @@
         <label for="modeSelect">Mode</label>
         <select id="modeSelect">
           <option value="game" selected>Match Game</option>
-          <option value="learn">Learn Gunitaakshara</option>
+          <option value="learn">Learning Mode</option>
+        </select>
+
+        <label for="learnTopicSelect" class="learn-only hidden">Learning Mode</label>
+        <select id="learnTopicSelect" class="learn-only hidden">
+          <option value="gunita" selected>Gunitaakshara</option>
+          <option value="varnamaale_all">Varnamaale (All)</option>
+          <option value="varnamaale_swara">Varnamaale (Swara)</option>
+          <option value="varnamaale_vyanjana">Varnamaale (Vyanjana)</option>
         </select>
 
         <label for="levelSelect" class="game-only">Level</label>
         <select id="levelSelect" class="game-only"></select>
-
-        <label for="learnGroupSelect" class="learn-only hidden">Group</label>
-        <select id="learnGroupSelect" class="learn-only hidden">
-          <option value="A">A: ಕ ಕಾ ಕಿ ಕೀ</option>
-          <option value="B">B: ಕು ಕೂ ಕೆ ಕೇ</option>
-          <option value="C">C: ಕೈ ಕೊ ಕೋ ಕೌ</option>
-        </select>
 
         <label for="itemCount" class="game-only">Pairs</label>
         <select id="itemCount" class="game-only">
@@ -45,6 +46,7 @@
       <section class="status" aria-live="polite">
         <p id="statusText">Choose a level and start matching.</p>
         <p id="scoreText">Score: 0 / 0</p>
+        <p id="streakText">Streak: 0 | Best: 0</p>
       </section>
 
       <section class="board">
@@ -60,7 +62,7 @@
       </section>
 
       <section id="learnPanel" class="learn-panel hidden" aria-live="polite">
-        <h2>Gunitaakshara Learning</h2>
+        <h2 id="learnTitle">Learning</h2>
         <p id="learnStepText">Step</p>
 
         <div id="learnCard" class="learn-card"></div>
@@ -77,7 +79,7 @@
       </footer>
     </main>
 
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+    <script src="data.js?v=20260801"></script>
+    <script src="app.js?v=20260801"></script>
   </body>
 </html>
