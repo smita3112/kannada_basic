@@ -22,6 +22,7 @@ const learnCard = document.getElementById("learnCard");
 const learnPrompt = document.getElementById("learnPrompt");
 const learnOptions = document.getElementById("learnOptions");
 const learnPrimaryBtn = document.getElementById("learnPrimaryBtn");
+const learnRetryMistakesBtn = document.getElementById("learnRetryMistakesBtn");
 
 const LEARN_OPTION_COUNT = {
   gunita: 4,
@@ -48,6 +49,21 @@ const SWARA_IDS = new Set([
   "aha",
 ]);
 
+const GUNITA_SIGN_META = {
+  "ka-1": { sign: "", family: "a" },
+  kaa: { sign: "ಾ", family: "a" },
+  ki: { sign: "ಿ", family: "i" },
+  kii: { sign: "ೀ", family: "i" },
+  ku: { sign: "ು", family: "u" },
+  kuu: { sign: "ೂ", family: "u" },
+  ke: { sign: "ೆ", family: "e" },
+  kee: { sign: "ೇ", family: "e" },
+  kai: { sign: "ೈ", family: "e" },
+  ko: { sign: "ೊ", family: "o" },
+  koo: { sign: "ೋ", family: "o" },
+  kau: { sign: "ೌ", family: "o" },
+};
+
 const state = {
   mode: "game",
   levelId: "",
@@ -71,6 +87,8 @@ const state = {
     index: 0,
     score: 0,
     mistakes: 0,
+    mistakeById: {},
+    retryMode: false,
     phase: "show",
     options: [],
     selectedOptionId: null,
@@ -107,6 +125,48 @@ function getLevelById(levelId) {
 
 function getBaseSound(soundText) {
   return soundText.split("(")[0].trim();
+}
+
+function getGunitaMeta(item) {
+  if (state.learn.topic !== "gunita") {
+    return null;
+  }
+  return GUNITA_SIGN_META[item.id] || null;
+}
+
+function getGunitaCardHTML(item, withSplit) {
+  const gunitaMeta = getGunitaMeta(item);
+  if (!gunitaMeta) {
+    return item.text;
+  }
+
+  const familyClass = `gunita-family-${gunitaMeta.family}`;
+  const signText = gunitaMeta.sign || "∅";
+  const combined = `<span class="gunita-combo"><span class="gunita-base">ಕ</span><span class="gunita-sign ${familyClass}">${gunitaMeta.sign}</span></span>`;
+
+  if (!withSplit) {
+    return combined;
+  }
+
+  return `${combined}<div class="gunita-split"><span class="gunita-base">ಕ</span> + <span class="gunita-sign ${familyClass}">${signText}</span> = ${combined}</div>`;
+}
+
+function setLearnCardContent(item, withSplit = false) {
+  const gunitaMeta = getGunitaMeta(item);
+  if (!gunitaMeta) {
+    learnCard.textContent = item.text;
+    return;
+  }
+  learnCard.innerHTML = getGunitaCardHTML(item, withSplit);
+}
+
+function setLearnOptionContent(button, option) {
+  const gunitaMeta = getGunitaMeta(option);
+  if (!gunitaMeta) {
+    button.textContent = option.text;
+    return;
+  }
+  button.innerHTML = getGunitaCardHTML(option, false);
 }
 
 function updateGameProgressText() {
@@ -439,11 +499,14 @@ function startLearningMode() {
   state.learn.index = 0;
   state.learn.score = 0;
   state.learn.mistakes = 0;
+  state.learn.mistakeById = {};
+  state.learn.retryMode = false;
   state.streak = 0;
   state.bestStreak = 0;
   state.learn.phase = "show";
   state.learn.options = [];
   state.learn.selectedOptionId = null;
+  learnRetryMistakesBtn.classList.add("hidden");
 
   renderLearning();
   updateLearnControlsVisibility();
@@ -461,6 +524,43 @@ function startLearningMode() {
         : "Vyanjana";
   learnTitle.textContent = `Varnamaale Learning (${label})`;
   updateStatus(`Learning Varnamaale (${label}): listen and remember.`);
+}
+
+function startGunitaMistakePractice() {
+  if (state.learn.topic !== "gunita") {
+    return;
+  }
+
+  const mistakeIds = Object.keys(state.learn.mistakeById).filter((itemId) => state.learn.mistakeById[itemId] > 0);
+  if (mistakeIds.length === 0) {
+    return;
+  }
+
+  const gunitaLevel = getLevelById("gunita");
+  if (!gunitaLevel) {
+    return;
+  }
+
+  const retryItems = gunitaLevel.items.filter((item) => mistakeIds.includes(item.id));
+  if (retryItems.length === 0) {
+    return;
+  }
+
+  state.learn.items = retryItems;
+  state.learn.index = 0;
+  state.learn.score = 0;
+  state.learn.mistakes = 0;
+  state.learn.mistakeById = {};
+  state.learn.retryMode = true;
+  state.learn.phase = "show";
+  state.learn.options = [];
+  state.learn.selectedOptionId = null;
+  state.streak = 0;
+  state.bestStreak = 0;
+
+  renderLearning();
+  learnTitle.textContent = "Gunitaakshara Mistake Practice";
+  updateStatus("Practice mistakes only: focus on tricky signs.");
 }
 
 function currentLearnItem() {
@@ -493,6 +593,8 @@ function handleLearnOptionClick(optionItem) {
     state.bestStreak = Math.max(state.bestStreak, state.streak);
     updateStatus("Correct ✅ Nice! Tap Next.");
   } else {
+    state.learn.mistakes += 1;
+    state.learn.mistakeById[correctItem.id] = (state.learn.mistakeById[correctItem.id] || 0) + 1;
     state.streak = 0;
     updateStatus(`Wrong ❌. Correct answer: ${correctItem.text}`);
   }
@@ -558,6 +660,7 @@ function renderLearning() {
     learnOptions.innerHTML = "";
     learnPrimaryBtn.textContent = "Restart Lesson";
     learnPrimaryBtn.disabled = false;
+    learnRetryMistakesBtn.classList.add("hidden");
     state.learn.phase = "done";
     return;
   }
@@ -565,21 +668,33 @@ function renderLearning() {
   if (state.learn.phase === "done") {
     const total = state.learn.items.length;
     const stars = state.learn.score === total ? "⭐⭐⭐" : state.learn.score >= Math.ceil(total * 0.75) ? "⭐⭐" : "⭐";
-    learnStepText.textContent = state.learn.topic === "gunita" ? "Completed Gunitaakshara" : "Completed Varnamaale";
+    learnStepText.textContent =
+      state.learn.topic === "gunita"
+        ? state.learn.retryMode
+          ? "Completed Gunitaakshara Mistake Practice"
+          : "Completed Gunitaakshara"
+        : "Completed Varnamaale";
     learnCard.classList.remove("hidden");
     learnCard.textContent = stars;
-    learnPrompt.textContent = `Score ${state.learn.score}/${total}. Tap Restart Lesson to practice again.`;
+    learnPrompt.textContent =
+      state.learn.topic === "gunita"
+        ? `Score ${state.learn.score}/${total}. Tap Restart Lesson for full practice.`
+        : `Score ${state.learn.score}/${total}. Tap Restart Lesson to practice again.`;
     learnOptions.innerHTML = "";
     learnPrimaryBtn.textContent = "Restart Lesson";
     learnPrimaryBtn.disabled = false;
+    const canRetryMistakes = state.learn.topic === "gunita" && state.learn.mistakes > 0;
+    learnRetryMistakesBtn.classList.toggle("hidden", !canRetryMistakes);
     return;
   }
+
+  learnRetryMistakesBtn.classList.add("hidden");
 
   const stepNumber = state.learn.index + 1;
   const total = state.learn.items.length;
   learnStepText.textContent = `Item ${stepNumber} of ${total}`;
 
-  learnCard.textContent = item.text;
+  setLearnCardContent(item, false);
   learnCard.onclick = () => {
     speakItem(item);
   };
@@ -588,7 +703,7 @@ function renderLearning() {
     learnPrompt.textContent = `Listen and repeat: ${getBaseSound(item.sound)} (tap card to hear)`;
     learnOptions.innerHTML = "";
     learnCard.classList.remove("hidden");
-    learnCard.textContent = item.text;
+    setLearnCardContent(item, state.learn.topic === "gunita");
     learnCard.onclick = () => {
       speakItem(item);
     };
@@ -608,7 +723,7 @@ function renderLearning() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "learn-option";
-      button.textContent = option.text;
+      setLearnOptionContent(button, option);
       button.addEventListener("click", () => handleLearnOptionClick(option));
       learnOptions.appendChild(button);
     });
@@ -621,7 +736,7 @@ function renderLearning() {
   if (state.learn.phase === "feedback") {
     learnPrompt.textContent = `Answer check for: ${getBaseSound(item.sound)}`;
     learnCard.classList.remove("hidden");
-    learnCard.textContent = item.text;
+    setLearnCardContent(item, state.learn.topic === "gunita");
     learnCard.onclick = () => {
       speakItem(item);
     };
@@ -631,7 +746,7 @@ function renderLearning() {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "learn-option";
-      button.textContent = option.text;
+      setLearnOptionContent(button, option);
 
       const isCorrect = option.id === item.id;
       const isSelected = option.id === state.learn.selectedOptionId;
@@ -701,6 +816,7 @@ function initControls() {
   });
   learnTopicSelect.addEventListener("change", startLearningMode);
   restartLearnBtn.addEventListener("click", startLearningMode);
+  learnRetryMistakesBtn.addEventListener("click", startGunitaMistakePractice);
   learnPrimaryBtn.addEventListener("click", advanceLearning);
 }
 

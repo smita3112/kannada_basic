@@ -181,6 +181,54 @@ button {
   font-weight: 700;
 }
 
+.gunita-combo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.02em;
+}
+
+.gunita-base {
+  color: var(--text);
+}
+
+.gunita-sign {
+  font-weight: 800;
+}
+
+.gunita-split {
+  margin-top: 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.gunita-family-a {
+  color: #c2410c;
+}
+
+.gunita-family-i {
+  color: #1d4ed8;
+}
+
+.gunita-family-u {
+  color: #15803d;
+}
+
+.gunita-family-e {
+  color: #7c3aed;
+}
+
+.gunita-family-o {
+  color: #be185d;
+}
+
+.learn-option .gunita-base {
+  font-size: 1.4rem;
+}
+
+.learn-option .gunita-sign {
+  font-size: 1.4rem;
+}
+
 .learn-prompt {
   margin-top: 0.8rem;
   font-size: 1.05rem;

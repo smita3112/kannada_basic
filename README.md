@@ -20,6 +20,9 @@ A simple offline web app to help kids practice Kannada matching:
   - `Varnamaale (All)`
   - `Varnamaale (Swara)`
   - `Varnamaale (Vyanjana)`
+- In `Gunitaakshara`, vowel signs are color-highlighted and shown as:
+  - `ಕ + sign = full form`
+- After a Gunitaakshara lesson, use `Practice Mistakes` to retry only missed letters.
 
 ## Run locally
 
