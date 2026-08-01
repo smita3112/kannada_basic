@@ -232,6 +232,7 @@ function maybeCheckMatch() {
       const isLastSet = state.gamePageIndex >= state.gamePages.length - 1;
       if (isLastSet) {
         nextSetBtn.classList.add("hidden");
+        nextSetBtn.disabled = true;
         mistakeSummary.classList.remove("hidden");
         renderGameMistakeSummary();
         updateStatus("Session complete 🎉 You covered all sets.");
@@ -239,6 +240,7 @@ function maybeCheckMatch() {
       }
 
       nextSetBtn.classList.remove("hidden");
+      nextSetBtn.disabled = false;
       updateStatus("Set complete ✅ Click Next Set.");
       return;
     }
@@ -280,6 +282,7 @@ function loadGameSet(setIndex) {
   state.correctCount = 0;
   state.matchedIds = new Set();
   nextSetBtn.classList.add("hidden");
+  nextSetBtn.disabled = true;
   renderBoard();
   updateStatus(`Set ${setIndex + 1} ready.`);
 }
@@ -389,6 +392,8 @@ function buildRound() {
   state.streak = 0;
   state.bestStreak = 0;
   mistakeSummary.classList.add("hidden");
+  nextSetBtn.classList.add("hidden");
+  nextSetBtn.disabled = true;
   renderGameMistakeSummary();
   loadGameSet(0);
   updateStatus(`Session started: ${level.name}`);
@@ -685,6 +690,11 @@ function initControls() {
   nextSetBtn.addEventListener("click", () => {
     const canMove = state.correctCount === state.pairs.length && state.gamePageIndex < state.gamePages.length - 1;
     if (!canMove) {
+      if (state.correctCount !== state.pairs.length) {
+        updateStatus("Finish current set first to unlock Next Set.");
+        return;
+      }
+      updateStatus("No more sets left in this session.");
       return;
     }
     loadGameSet(state.gamePageIndex + 1);
