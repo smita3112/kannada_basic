@@ -23,6 +23,8 @@ A simple offline web app to help kids practice Kannada matching:
 - In `Gunitaakshara`, vowel signs are color-highlighted and shown as:
   - `ಕ + sign = full form`
 - After a Gunitaakshara lesson, use `Practice Mistakes` to retry only missed letters.
+- In `Varnamaale` learning, writing animation prototype is available for starter letters:
+  - `ಅ ಆ ಇ ಈ ಉ ಊ ಕ ಖ ಗ`
 
 ## Run locally
 

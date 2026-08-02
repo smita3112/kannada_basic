@@ -3,92 +3,138 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kannada Learning Match Game</title>
+    <title>Kannada Letters Learning</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main class="app">
       <header class="header">
-        <h1>Kannada Match Game</h1>
-        <p>Match the sound (left) with the Kannada form (right).</p>
+        <h1>Kannada Letters Learning</h1>
+        <p>Learn Kannada letters through listening, matching, and practice.</p>
       </header>
 
-      <section class="controls">
-        <label for="modeSelect">Mode</label>
-        <select id="modeSelect">
-          <option value="game" selected>Match Game</option>
-          <option value="learn">Learning Mode</option>
-        </select>
+      <div class="layout-shell">
+        <aside class="left-panel">
+          <section class="controls">
+            <label for="modeSelect">Mode</label>
+            <select id="modeSelect">
+              <option value="game" selected>Match Game</option>
+              <option value="learn">Learning Mode</option>
+            </select>
 
-        <label for="learnTopicSelect" class="learn-only hidden">Learning Mode</label>
-        <select id="learnTopicSelect" class="learn-only hidden">
-          <option value="gunita" selected>Gunitaakshara</option>
-          <option value="varnamaale_all">Varnamaale (All)</option>
-          <option value="varnamaale_swara">Varnamaale (Swara)</option>
-          <option value="varnamaale_vyanjana">Varnamaale (Vyanjana)</option>
-        </select>
+            <label for="learnTopicSelect" class="learn-only hidden">Learning Mode</label>
+            <select id="learnTopicSelect" class="learn-only hidden">
+              <option value="gunita" selected>Gunitaakshara</option>
+              <option value="varnamaale_all">Varnamaale (All)</option>
+              <option value="varnamaale_swara">Varnamaale (Swara)</option>
+              <option value="varnamaale_vyanjana">Varnamaale (Vyanjana)</option>
+            </select>
 
-        <label for="levelSelect" class="game-only">Level</label>
-        <select id="levelSelect" class="game-only"></select>
+            <label for="levelSelect" class="game-only">Level</label>
+            <select id="levelSelect" class="game-only"></select>
 
-        <label for="itemCount" class="game-only">Pairs</label>
-        <select id="itemCount" class="game-only">
-          <option value="6">6</option>
-          <option value="8" selected>8</option>
-          <option value="10">10</option>
-          <option value="12">12</option>
-        </select>
+            <label for="itemCount" class="game-only">Pairs</label>
+            <select id="itemCount" class="game-only">
+              <option value="6">6</option>
+              <option value="8" selected>8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+            </select>
 
-        <button id="newRoundBtn" class="game-only" type="button">New Round</button>
-        <button id="nextSetBtn" class="game-only hidden" type="button">Next Set</button>
-        <button id="restartLearnBtn" class="learn-only hidden" type="button">Restart Lesson</button>
-      </section>
+            <button id="newRoundBtn" class="game-only" type="button">New Round</button>
+            <button id="restartLearnBtn" class="learn-only hidden" type="button">Restart Lesson</button>
+          </section>
 
-      <section class="status" aria-live="polite">
-        <p id="statusText">Choose a level and start matching.</p>
-        <p id="scoreText">Score: 0 / 0</p>
-        <p id="streakText">Streak: 0 | Best: 0</p>
-        <p id="gameProgressText" class="game-only">Set: 0 / 0</p>
-      </section>
+          <section class="status" aria-live="polite">
+            <p id="statusText">Choose a level and start matching.</p>
+            <div class="status-metrics">
+              <p id="scoreText" class="metric-pill">Score: 0 / 0</p>
+              <p id="streakText" class="metric-pill">Streak: 0 | Best: 0</p>
+              <p id="gameProgressText" class="game-only metric-pill">Set: 0 / 0</p>
+            </div>
 
-      <section class="board">
-        <div>
-          <h2>Sound</h2>
-          <div id="soundColumn" class="column"></div>
-        </div>
+            <div class="progress-block game-only">
+              <p class="progress-label">Match Progress</p>
+              <div class="progress-track" role="img" aria-label="Match progress">
+                <div id="gameProgressFill" class="progress-fill"></div>
+              </div>
+              <p id="gameProgressVisualText" class="progress-value">0%</p>
+            </div>
 
-        <div>
-          <h2>Kannada</h2>
-          <div id="scriptColumn" class="column"></div>
-        </div>
-      </section>
+            <div class="progress-block learn-only hidden">
+              <p class="progress-label">Lesson Progress</p>
+              <div class="progress-track" role="img" aria-label="Lesson progress">
+                <div id="learnProgressFill" class="progress-fill"></div>
+              </div>
+              <p id="learnProgressVisualText" class="progress-value">0%</p>
+            </div>
+          </section>
 
-      <section id="mistakeSummary" class="status hidden game-only" aria-live="polite">
-        <p><strong>Varnamaale Mistakes Summary</strong></p>
-        <p id="mistakeSummaryEmpty">No mistakes in this session 🎉</p>
-        <ul id="mistakeSummaryList" class="mistake-list"></ul>
-      </section>
+          <footer class="footer game-only">
+            <p>Tip: In Match mode, tap Sound cards (left column) to hear pronunciation.</p>
+          </footer>
+        </aside>
 
-      <section id="learnPanel" class="learn-panel hidden" aria-live="polite">
-        <h2 id="learnTitle">Learning</h2>
-        <p id="learnStepText">Step</p>
+        <section class="right-panel">
+          <section class="board">
+            <div>
+              <h2>Sound</h2>
+              <div id="soundColumn" class="column"></div>
+            </div>
 
-        <div id="learnCard" class="learn-card"></div>
+            <div>
+              <h2>Kannada</h2>
+              <div id="scriptColumn" class="column"></div>
+            </div>
+          </section>
 
-        <div id="learnPrompt" class="learn-prompt"></div>
+          <div class="board-actions game-only">
+            <button id="nextSetBtn" class="hidden" type="button">Next Set</button>
+          </div>
 
-        <div id="learnOptions" class="learn-options"></div>
+          <section id="mistakeSummary" class="status hidden game-only" aria-live="polite">
+            <p><strong>Varnamaale Mistakes Summary</strong></p>
+            <p id="mistakeSummaryEmpty">No mistakes in this session 🎉</p>
+            <ul id="mistakeSummaryList" class="mistake-list"></ul>
+          </section>
 
-        <button id="learnPrimaryBtn" type="button">Next</button>
-        <button id="learnRetryMistakesBtn" class="hidden" type="button">Practice Mistakes</button>
-      </section>
+          <section id="learnPanel" class="learn-panel hidden" aria-live="polite">
+            <h2 id="learnTitle">Learning</h2>
+            <p id="learnStepText">Step</p>
 
-      <footer class="footer">
-        <p>Tip: In Match mode, tap Sound cards (left column) to hear pronunciation.</p>
-      </footer>
+            <div id="learnMainGrid" class="learn-main-grid">
+              <section class="learn-content-panel">
+                <p><strong>Listen and repeat</strong></p>
+                <div id="learnCard" class="learn-card"></div>
+
+                <div id="learnPrompt" class="learn-prompt"></div>
+
+                <div id="learnOptions" class="learn-options"></div>
+
+                <div class="learn-actions">
+                  <button id="learnPrimaryBtn" type="button">Next</button>
+                  <button id="learnRetryMistakesBtn" class="hidden" type="button">Practice Mistakes</button>
+                </div>
+              </section>
+
+              <section id="tracePanel" class="trace-panel hidden">
+                <p><strong>Writing Animation</strong></p>
+                <p id="traceNote">Shows available Kannada writing animations from Wikimedia Commons.</p>
+                <div class="trace-canvas-wrap">
+                  <img id="traceGif" class="trace-gif" alt="Kannada writing animation" />
+                </div>
+                <div class="trace-controls">
+                  <button id="tracePlayBtn" type="button">↻ Replay Animation</button>
+                </div>
+              </section>
+            </div>
+          </section>
+        </section>
+      </div>
     </main>
 
-    <script src="data.js?v=20260801b"></script>
-    <script src="app.js?v=20260801b"></script>
+    <script src="data.js?v=20260802g"></script>
+    <script src="trace-map.js?v=20260802g"></script>
+    <script src="app.js?v=20260802g"></script>
   </body>
 </html>

@@ -16,6 +16,7 @@ const mistakeSummary = document.getElementById("mistakeSummary");
 const mistakeSummaryEmpty = document.getElementById("mistakeSummaryEmpty");
 const mistakeSummaryList = document.getElementById("mistakeSummaryList");
 const learnPanel = document.getElementById("learnPanel");
+const learnMainGrid = document.getElementById("learnMainGrid");
 const learnTitle = document.getElementById("learnTitle");
 const learnStepText = document.getElementById("learnStepText");
 const learnCard = document.getElementById("learnCard");
@@ -23,6 +24,14 @@ const learnPrompt = document.getElementById("learnPrompt");
 const learnOptions = document.getElementById("learnOptions");
 const learnPrimaryBtn = document.getElementById("learnPrimaryBtn");
 const learnRetryMistakesBtn = document.getElementById("learnRetryMistakesBtn");
+const tracePanel = document.getElementById("tracePanel");
+const traceNote = document.getElementById("traceNote");
+const traceGif = document.getElementById("traceGif");
+const tracePlayBtn = document.getElementById("tracePlayBtn");
+const gameProgressFill = document.getElementById("gameProgressFill");
+const gameProgressVisualText = document.getElementById("gameProgressVisualText");
+const learnProgressFill = document.getElementById("learnProgressFill");
+const learnProgressVisualText = document.getElementById("learnProgressVisualText");
 
 const LEARN_OPTION_COUNT = {
   gunita: 4,
@@ -64,6 +73,8 @@ const GUNITA_SIGN_META = {
   kau: { sign: "ೌ", family: "o" },
 };
 
+const VARNAMAALE_TRACE_FILES = window.VARNAMAALE_TRACE_FILES || {};
+
 const state = {
   mode: "game",
   levelId: "",
@@ -97,6 +108,7 @@ const state = {
 
 let availableVoices = [];
 const audioCache = new Map();
+let currentTraceFilePath = "";
 
 function updateVoices() {
   if (!("speechSynthesis" in window)) {
@@ -179,6 +191,16 @@ function updateGameProgressText() {
   gameProgressText.textContent = `Set: ${currentSet} / ${totalSets}`;
 }
 
+function setProgressVisual(fillElement, textElement, ratio) {
+  if (!fillElement || !textElement) {
+    return;
+  }
+  const clampedRatio = Number.isFinite(ratio) ? Math.min(1, Math.max(0, ratio)) : 0;
+  const percent = Math.round(clampedRatio * 100);
+  fillElement.style.width = `${percent}%`;
+  textElement.textContent = `${percent}%`;
+}
+
 function renderGameMistakeSummary() {
   mistakeSummaryList.innerHTML = "";
   const entries = Object.entries(state.gameMistakeById)
@@ -208,12 +230,18 @@ function updateStatus(message) {
     scoreText.textContent = `Score: ${state.gameScore} | Correct: ${state.correctCount}/${state.pairs.length} | Mistakes: ${state.gameMistakes}`;
     streakText.textContent = `Streak: ${state.streak} | Best: ${state.bestStreak}`;
     updateGameProgressText();
+    const gameRatio = state.pairs.length ? state.correctCount / state.pairs.length : 0;
+    setProgressVisual(gameProgressFill, gameProgressVisualText, gameRatio);
+    setProgressVisual(learnProgressFill, learnProgressVisualText, 0);
     return;
   }
 
   const total = state.learn.items.length;
   scoreText.textContent = `Lesson Score: ${state.learn.score} / ${total}`;
   streakText.textContent = `Streak: ${state.streak} | Best: ${state.bestStreak}`;
+  const lessonRatio = total ? (state.learn.index + (state.learn.phase === "done" ? 1 : 0)) / total : 0;
+  setProgressVisual(learnProgressFill, learnProgressVisualText, lessonRatio);
+  setProgressVisual(gameProgressFill, gameProgressVisualText, 0);
 }
 
 async function tryPlayRecordedAudio(item) {
@@ -267,6 +295,52 @@ function speakItem(item) {
       speakFallback(item);
     }
   });
+}
+
+function getTraceFilePathForItem(item) {
+  const mappingValue = VARNAMAALE_TRACE_FILES[item.id];
+  if (!mappingValue) {
+    return "";
+  }
+  return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(mappingValue)}`;
+}
+
+function playTraceAnimation() {
+  if (!currentTraceFilePath) {
+    return;
+  }
+  traceGif.src = "";
+  traceGif.src = `${currentTraceFilePath}?v=${Date.now()}`;
+}
+
+function updateTracePanel(item) {
+  const isVarnamaale = state.learn.topic.startsWith("varnamaale");
+  if (!isVarnamaale || !item) {
+    tracePanel.classList.add("hidden");
+    learnMainGrid?.classList.add("single-panel");
+    currentTraceFilePath = "";
+    traceGif.removeAttribute("src");
+    return;
+  }
+
+  const filePath = getTraceFilePathForItem(item);
+  const hasTrace = filePath.length > 0;
+  tracePanel.classList.remove("hidden");
+
+  if (!hasTrace) {
+    traceNote.textContent = `Animation not available yet for ${item.text}.`;
+    currentTraceFilePath = "";
+    traceGif.removeAttribute("src");
+    tracePlayBtn.disabled = true;
+    learnMainGrid?.classList.remove("single-panel");
+    return;
+  }
+
+  learnMainGrid?.classList.remove("single-panel");
+  traceNote.textContent = "Source: Wikimedia Commons animation (community-contributed).";
+  currentTraceFilePath = filePath;
+  traceGif.src = filePath;
+  tracePlayBtn.disabled = false;
 }
 
 function clearSelections() {
@@ -662,6 +736,7 @@ function renderLearning() {
     learnPrimaryBtn.textContent = "Restart Lesson";
     learnPrimaryBtn.disabled = false;
     learnRetryMistakesBtn.classList.add("hidden");
+    updateTracePanel(null);
     state.learn.phase = "done";
     return;
   }
@@ -686,6 +761,7 @@ function renderLearning() {
     learnPrimaryBtn.disabled = false;
     const canRetryMistakes = state.learn.topic === "gunita" && state.learn.mistakes > 0;
     learnRetryMistakesBtn.classList.toggle("hidden", !canRetryMistakes);
+    updateTracePanel(null);
     return;
   }
 
@@ -699,6 +775,7 @@ function renderLearning() {
   learnCard.onclick = () => {
     speakItem(item);
   };
+  updateTracePanel(item);
 
   if (state.learn.phase === "show") {
     learnPrompt.textContent = `Listen and repeat: ${getBaseSound(item.sound)} (tap card to hear)`;
@@ -780,6 +857,9 @@ function setMode(nextMode) {
 
   board.classList.toggle("hidden", nextMode !== "game");
   learnPanel.classList.toggle("hidden", nextMode !== "learn");
+  if (nextMode !== "learn") {
+    updateTracePanel(null);
+  }
 
   if (nextMode === "game") {
     buildRound();
@@ -819,6 +899,19 @@ function initControls() {
   restartLearnBtn.addEventListener("click", startLearningMode);
   learnRetryMistakesBtn.addEventListener("click", startGunitaMistakePractice);
   learnPrimaryBtn.addEventListener("click", advanceLearning);
+  tracePlayBtn.addEventListener("click", playTraceAnimation);
+  traceGif.addEventListener("error", () => {
+    const currentItem = state.learn.items[state.learn.index];
+    traceNote.textContent = currentItem
+      ? `Animation could not be loaded for ${currentItem.text}.`
+      : "Animation could not be loaded.";
+    tracePlayBtn.disabled = true;
+  });
+  traceGif.addEventListener("load", () => {
+    if (currentTraceFilePath) {
+      tracePlayBtn.disabled = false;
+    }
+  });
 }
 
 initControls();

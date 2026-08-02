@@ -21,12 +21,30 @@ body {
   font-family: "Noto Sans Kannada", "Noto Sans", system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
+  line-height: 1.4;
 }
 
 .app {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1.2rem;
+}
+
+.layout-shell {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: minmax(230px, 290px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.left-panel {
+  position: sticky;
+  top: 0.8rem;
+}
+
+.right-panel {
+  min-width: 0;
 }
 
 .header h1 {
@@ -35,17 +53,27 @@ body {
 
 .header p {
   margin-top: 0.5rem;
+  opacity: 0.9;
 }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.45rem;
+  align-items: stretch;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.8rem;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
+}
+
+.controls label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
+  letter-spacing: 0.01em;
+  opacity: 0.78;
 }
 
 select,
@@ -58,11 +86,17 @@ button {
   background: var(--card);
 }
 
+.controls select,
+.controls button {
+  width: 100%;
+}
+
 .controls button {
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
   cursor: pointer;
+  font-weight: 600;
 }
 
 .controls button:hover {
@@ -75,10 +109,61 @@ button {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.6rem 0.8rem;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
 }
 
 .status p {
   margin: 0.25rem 0;
+}
+
+.status-metrics {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+}
+
+.metric-pill {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  background: #fafaff;
+  font-size: 0.92rem;
+}
+
+.progress-block {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border);
+}
+
+.progress-label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.progress-track {
+  margin-top: 0.35rem;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.progress-fill {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7c3aed, #2563eb);
+  transition: width 220ms ease;
+}
+
+.progress-value {
+  margin-top: 0.3rem;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
 .mistake-list {
@@ -95,6 +180,29 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+}
+
+.right-panel .board {
+  margin-top: 0;
+}
+
+.board-actions {
+  margin-top: 0.7rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.board-actions button {
+  width: auto;
+  min-width: 130px;
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+.board-actions button:hover {
+  opacity: 0.95;
 }
 
 .column {
@@ -114,6 +222,12 @@ button {
   gap: 0.5rem;
   cursor: pointer;
   min-height: 56px;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgb(15 23 42 / 7%);
 }
 
 .card strong {
@@ -151,6 +265,10 @@ button {
 .footer {
   margin-top: 1rem;
   font-size: 0.95rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: #fbfdff;
+  padding: 0.55rem 0.7rem;
 }
 
 .hidden {
@@ -163,6 +281,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 4%);
 }
 
 .learn-panel h2 {
@@ -268,8 +387,98 @@ button {
   color: var(--warn);
 }
 
+.learn-main-grid {
+  margin-top: 0.9rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.learn-main-grid.single-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.learn-content-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fcfcff;
+  padding: 0.8rem;
+}
+
+.learn-content-panel > p,
+.trace-panel > p:first-child {
+  font-size: 1.05rem;
+}
+
+.learn-content-panel p {
+  margin: 0.2rem 0;
+}
+
+.learn-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.trace-panel {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fcfcff;
+  padding: 0.8rem;
+}
+
+button:focus-visible,
+select:focus-visible,
+.card:focus-visible,
+.learn-option:focus-visible {
+  outline: 3px solid #c4b5fd;
+  outline-offset: 2px;
+}
+
+.trace-panel p {
+  margin: 0.2rem 0;
+}
+
+.trace-canvas-wrap {
+  margin-top: 0.5rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: #fff;
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+}
+
+.trace-gif {
+  width: 190px;
+  height: 190px;
+  object-fit: contain;
+}
+
+.trace-controls {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 760px) {
+  .layout-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel {
+    position: static;
+  }
+
   .board {
+    grid-template-columns: 1fr;
+  }
+
+  .learn-main-grid {
     grid-template-columns: 1fr;
   }
 }
