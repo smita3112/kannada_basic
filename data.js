@@ -90,4 +90,21 @@ const KANNADA_LEVELS = [
       { id: "ngga", sound: "ṅga (nga)", text: "ಙ್ಗ" },
     ],
   },
+  {
+    id: "numbers",
+    name: "Kannada Numbers (0-10)",
+    items: [
+      { id: "num-0", sound: "ಸೊನ್ನೆ", text: "೦" },
+      { id: "num-1", sound: "ಒಂದು", text: "೧" },
+      { id: "num-2", sound: "ಎರಡು", text: "೨" },
+      { id: "num-3", sound: "ಮೂರು", text: "೩" },
+      { id: "num-4", sound: "ನಾಲ್ಕು", text: "೪" },
+      { id: "num-5", sound: "ಐದು", text: "೫" },
+      { id: "num-6", sound: "ಆರು", text: "೬" },
+      { id: "num-7", sound: "ಏಳು", text: "೭" },
+      { id: "num-8", sound: "ಎಂಟು", text: "೮" },
+      { id: "num-9", sound: "ಒಂಬತ್ತು", text: "೯" },
+      { id: "num-10", sound: "ಹತ್ತು", text: "೧೦" },
+    ],
+  },
 ];

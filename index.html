@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kannada Letters Learning</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260805c" />
   </head>
   <body>
     <main class="app">
@@ -16,10 +16,16 @@
       <div class="layout-shell">
         <aside class="left-panel">
           <section class="controls">
+            <label for="languageSelect">Language</label>
+            <select id="languageSelect">
+              <option value="kannada" selected>Kannada</option>
+              <option value="hindi">Hindi</option>
+            </select>
+
             <label for="modeSelect">Mode</label>
             <select id="modeSelect">
-              <option value="game" selected>Match Game</option>
-              <option value="learn">Learning Mode</option>
+              <option value="learn" selected>Learning Mode</option>
+              <option value="quiz">Quiz Mode</option>
             </select>
 
             <label for="learnTopicSelect" class="learn-only hidden">Learning Mode</label>
@@ -28,6 +34,18 @@
               <option value="varnamaale_all">Varnamaale (All)</option>
               <option value="varnamaale_swara">Varnamaale (Swara)</option>
               <option value="varnamaale_vyanjana">Varnamaale (Vyanjana)</option>
+              <option value="numbers">Kannada Numbers (0-10)</option>
+              <option value="hindi_opposites_learning">Hindi Opposites (Pictures + Audio)</option>
+            </select>
+
+            <label for="quizTopicSelect" class="quiz-only hidden">Quiz Topic</label>
+            <select id="quizTopicSelect" class="quiz-only hidden">
+              <option value="gunita_quiz" selected>Gunitaakshara Quiz</option>
+              <option value="varnamaale_quiz">Varnamaale Quiz</option>
+              <option value="ottakshara_quiz">Ottakshara Quiz</option>
+              <option value="numbers_quiz">Kannada Numbers Quiz</option>
+              <option value="hindi_opposites_quiz">Hindi Opposites Match</option>
+              <option value="hindi_opposites_picture_quiz">Hindi Opposites Picture Quiz</option>
             </select>
 
             <label for="levelSelect" class="game-only">Level</label>
@@ -67,6 +85,14 @@
                 <div id="learnProgressFill" class="progress-fill"></div>
               </div>
               <p id="learnProgressVisualText" class="progress-value">0%</p>
+            </div>
+
+            <div class="progress-block quiz-only hidden">
+              <p class="progress-label">Quiz Progress</p>
+              <div class="progress-track" role="img" aria-label="Quiz progress">
+                <div id="quizProgressFill" class="progress-fill"></div>
+              </div>
+              <p id="quizProgressVisualText" class="progress-value">0%</p>
             </div>
           </section>
 
@@ -113,7 +139,7 @@
 
                 <div class="learn-actions">
                   <button id="learnPrimaryBtn" type="button">Next</button>
-                  <button id="learnRetryMistakesBtn" class="hidden" type="button">Practice Mistakes</button>
+                  <button id="learnRetryMistakesBtn" class="hidden" type="button">Boostup Match</button>
                 </div>
               </section>
 
@@ -129,12 +155,42 @@
               </section>
             </div>
           </section>
+
+          <section id="quizPanel" class="learn-panel hidden" aria-live="polite">
+            <h2 id="quizTitle">Letter Quiz (49)</h2>
+            <p id="quizStepText">Item 1 of 49</p>
+            <p id="quizPrompt" class="learn-prompt">What sound does this letter make?</p>
+
+            <div class="learn-actions">
+              <button id="quizPlayPromptBtn" class="hidden" type="button">🔊 Play Sound</button>
+            </div>
+
+            <div id="quizLetterCard" class="learn-card">ಅ</div>
+
+            <div id="quizOptions" class="learn-options"></div>
+
+            <div id="quizDropdownWrap" class="learn-actions hidden">
+              <select id="quizAnswerSelect" class="learn-select" aria-label="Choose opposite word">
+                <option value="">Select the opposite word</option>
+              </select>
+            </div>
+
+            <div class="learn-actions">
+              <button id="quizNextBtn" type="button">Next Letter</button>
+            </div>
+
+            <section id="quizMistakeSummary" class="status hidden">
+              <p><strong>Quiz Mistakes Summary</strong></p>
+              <p id="quizMistakeSummaryEmpty">No mistakes in this quiz 🎉</p>
+              <ul id="quizMistakeSummaryList" class="mistake-list"></ul>
+            </section>
+          </section>
         </section>
       </div>
     </main>
 
-    <script src="data.js?v=20260802g"></script>
-    <script src="trace-map.js?v=20260802g"></script>
-    <script src="app.js?v=20260802g"></script>
+    <script src="data.js?v=20260802o"></script>
+    <script src="trace-map.js?v=20260802o"></script>
+    <script src="app.js?v=20260805c"></script>
   </body>
 </html>
