@@ -1,3 +1,43 @@
+const GUNITA_VOWEL_FORMS = [
+  { suffix: "a", sound: "a", sign: "", family: "a" },
+  { suffix: "aa", sound: "ā", sign: "ಾ", family: "a" },
+  { suffix: "i", sound: "i", sign: "ಿ", family: "i" },
+  { suffix: "ii", sound: "ī", sign: "ೀ", family: "i" },
+  { suffix: "u", sound: "u", sign: "ು", family: "u" },
+  { suffix: "uu", sound: "ū", sign: "ೂ", family: "u" },
+  { suffix: "e", sound: "e", sign: "ೆ", family: "e" },
+  { suffix: "ee", sound: "ē", sign: "ೇ", family: "e" },
+  { suffix: "ai", sound: "ai", sign: "ೈ", family: "e" },
+  { suffix: "o", sound: "o", sign: "ೊ", family: "o" },
+  { suffix: "oo", sound: "ō", sign: "ೋ", family: "o" },
+  { suffix: "au", sound: "au", sign: "ೌ", family: "o" },
+];
+
+const GUNITA_BASE_LETTERS = [
+  { id: "ka", text: "ಕ", roman: "k" },
+  { id: "kha", text: "ಖ", roman: "kh" },
+  { id: "ga", text: "ಗ", roman: "g" },
+  { id: "gha", text: "ಘ", roman: "gh" },
+  { id: "pa", text: "ಪ", roman: "p" },
+  { id: "cha", text: "ಚ", roman: "c" },
+  { id: "chha", text: "ಛ", roman: "ch" },
+  { id: "ja", text: "ಜ", roman: "j" },
+  { id: "ta", text: "ತ", roman: "t" },
+  { id: "tha", text: "ಥ", roman: "th" },
+];
+
+const GUNITA_ITEMS = GUNITA_BASE_LETTERS.flatMap((base) =>
+  GUNITA_VOWEL_FORMS.map((vowel) => ({
+    id: `${base.id}-${vowel.suffix}`,
+    sound: `${base.roman}${vowel.sound}`,
+    text: `${base.text}${vowel.sign}`,
+    base: base.text,
+    seriesId: base.id,
+    sign: vowel.sign,
+    family: vowel.family,
+  })),
+);
+
 const KANNADA_LEVELS = [
   {
     id: "varnamaale",
@@ -56,21 +96,8 @@ const KANNADA_LEVELS = [
   },
   {
     id: "gunita",
-    name: "Gunitaakshara (ಕ series)",
-    items: [
-      { id: "ka-1", sound: "ka", text: "ಕ" },
-      { id: "kaa", sound: "kā (kaa)", text: "ಕಾ" },
-      { id: "ki", sound: "ki", text: "ಕಿ" },
-      { id: "kii", sound: "kī (kee)", text: "ಕೀ" },
-      { id: "ku", sound: "ku", text: "ಕು" },
-      { id: "kuu", sound: "kū (koo)", text: "ಕೂ" },
-      { id: "ke", sound: "ke", text: "ಕೆ" },
-      { id: "kee", sound: "kē (kay)", text: "ಕೇ" },
-      { id: "kai", sound: "kai", text: "ಕೈ" },
-      { id: "ko", sound: "ko", text: "ಕೊ" },
-      { id: "koo", sound: "kō (koe)", text: "ಕೋ" },
-      { id: "kau", sound: "kau", text: "ಕೌ" },
-    ],
+    name: "Gunitaakshara (10 letter series)",
+    items: GUNITA_ITEMS,
   },
   {
     id: "ottakshara",
@@ -92,7 +119,7 @@ const KANNADA_LEVELS = [
   },
   {
     id: "numbers",
-    name: "Kannada Numbers (0-10)",
+    name: "Kannada Numbers (0-20)",
     items: [
       { id: "num-0", sound: "ಸೊನ್ನೆ", text: "೦" },
       { id: "num-1", sound: "ಒಂದು", text: "೧" },
@@ -105,6 +132,16 @@ const KANNADA_LEVELS = [
       { id: "num-8", sound: "ಎಂಟು", text: "೮" },
       { id: "num-9", sound: "ಒಂಬತ್ತು", text: "೯" },
       { id: "num-10", sound: "ಹತ್ತು", text: "೧೦" },
+      { id: "num-11", sound: "ಹನ್ನೊಂದು", text: "೧೧" },
+      { id: "num-12", sound: "ಹನ್ನೆರಡು", text: "೧೨" },
+      { id: "num-13", sound: "ಹದಿಮೂರು", text: "೧೩" },
+      { id: "num-14", sound: "ಹದಿನಾಲ್ಕು", text: "೧೪" },
+      { id: "num-15", sound: "ಹದಿನೈದು", text: "೧೫" },
+      { id: "num-16", sound: "ಹದಿನಾರು", text: "೧೬" },
+      { id: "num-17", sound: "ಹದಿನೇಳು", text: "೧೭" },
+      { id: "num-18", sound: "ಹದಿನೆಂಟು", text: "೧೮" },
+      { id: "num-19", sound: "ಹತ್ತೊಂಬತ್ತು", text: "೧೯" },
+      { id: "num-20", sound: "ಇಪ್ಪತ್ತು", text: "೨೦" },
     ],
   },
 ];

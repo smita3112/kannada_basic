@@ -1,5 +1,7 @@
 const modeSelect = document.getElementById("modeSelect");
 const languageSelect = document.getElementById("languageSelect");
+const hindiSetSelect = document.getElementById("hindiSetSelect");
+const hindiSetLabel = document.getElementById("hindiSetLabel");
 const levelSelect = document.getElementById("levelSelect");
 const itemCountSelect = document.getElementById("itemCount");
 const learnTopicSelect = document.getElementById("learnTopicSelect");
@@ -26,7 +28,10 @@ const learnStepText = document.getElementById("learnStepText");
 const learnCard = document.getElementById("learnCard");
 const learnPrompt = document.getElementById("learnPrompt");
 const learnOptions = document.getElementById("learnOptions");
+const gunitaSeriesControl = document.getElementById("gunitaSeriesControl");
+const gunitaSeriesSelect = document.getElementById("gunitaSeriesSelect");
 const learnPrimaryBtn = document.getElementById("learnPrimaryBtn");
+const learnPreviousBtn = document.getElementById("learnPreviousBtn");
 const learnRetryMistakesBtn = document.getElementById("learnRetryMistakesBtn");
 const tracePanel = document.getElementById("tracePanel");
 const traceNote = document.getElementById("traceNote");
@@ -49,9 +54,12 @@ const quizAnswerSelect = document.getElementById("quizAnswerSelect");
 const quizMistakeSummary = document.getElementById("quizMistakeSummary");
 const quizMistakeSummaryEmpty = document.getElementById("quizMistakeSummaryEmpty");
 const quizMistakeSummaryList = document.getElementById("quizMistakeSummaryList");
+const appTitle = document.querySelector(".header h1");
+const appSubtitle = document.querySelector(".header p");
 
 const LEARN_OPTION_COUNT = {
   gunita: 4,
+  ottakshara: 4,
   varnamaale_all: 8,
   varnamaale_swara: 6,
   varnamaale_vyanjana: 8,
@@ -76,23 +84,9 @@ const SWARA_IDS = new Set([
   "aha",
 ]);
 
-const GUNITA_SIGN_META = {
-  "ka-1": { sign: "", family: "a" },
-  kaa: { sign: "ಾ", family: "a" },
-  ki: { sign: "ಿ", family: "i" },
-  kii: { sign: "ೀ", family: "i" },
-  ku: { sign: "ು", family: "u" },
-  kuu: { sign: "ೂ", family: "u" },
-  ke: { sign: "ೆ", family: "e" },
-  kee: { sign: "ೇ", family: "e" },
-  kai: { sign: "ೈ", family: "e" },
-  ko: { sign: "ೊ", family: "o" },
-  koo: { sign: "ೋ", family: "o" },
-  kau: { sign: "ೌ", family: "o" },
-};
-
 const VARNAMAALE_TRACE_FILES = window.VARNAMAALE_TRACE_FILES || {};
 const HINDI_IMAGE_VERSION = "20260804g";
+const HINDI_SYNONYM_IMAGE_VERSION = "20260904a";
 
 const HINDI_OPPOSITES_PAIRS = [
   ["रात", "दिन"],
@@ -130,7 +124,322 @@ const HINDI_OPPOSITES_PAIRS = [
   ["गरमी", "सर्दी"],
 ];
 
+const HINDI_SET_SIZE = 11;
+const HINDI_SET_COUNT = 3;
+const HINDI_SET_THEMES = [
+  { icon: "🌟", name: "Starter Stars" },
+  { icon: "🚀", name: "Word Explorers" },
+  { icon: "🏆", name: "Opposite Champions" },
+];
+
+const HINDI_SYNONYM_SET_SIZE = 5;
+const HINDI_SYNONYM_SET_COUNT = 5;
+const HINDI_SYNONYM_SET_THEMES = [
+  { icon: "🌟", name: "Words 1–5" },
+  { icon: "🚀", name: "Words 6–10" },
+  { icon: "☀️", name: "Words 11–15" },
+  { icon: "🏆", name: "Words 16–20" },
+  { icon: "🎯", name: "Hyper Focus" },
+];
+
+const HINDI_CORRECT_MESSAGES = [
+  "शाबाश! You found the opposite! 🌟",
+  "बहुत बढ़िया! Brilliant match! 🎉",
+  "कमाल! You are a word explorer! 🚀",
+  "सही जवाब! Keep shining! ✨",
+];
+
 const HINDI_OPPOSITES_AUDIO_MAP = {};
+
+const HINDI_SYNONYMS = [
+  { word: "ईश्वर", english: "God", synonyms: ["भगवान", "प्रभु", "परमात्मा"] },
+  { word: "हवा", english: "air", synonyms: ["पवन", "वायु", "अनिल"] },
+  { word: "बाग", english: "garden", synonyms: ["उपवन", "वाटिका", "बगीचा"] },
+  { word: "मनुष्य", english: "human", synonyms: ["इंसान", "मानव", "व्यक्ति"] },
+  { word: "फूल", english: "flower", synonyms: ["पुष्प", "कुसुम", "सुमन"] },
+  { word: "माता", english: "mother", synonyms: ["अम्बा", "माँ", "जननी"] },
+  { word: "पिता", english: "father", synonyms: ["तात", "जनक", "पितृ"] },
+  { word: "बालक", english: "child", synonyms: ["बच्चा", "लड़का", "शिशु"] },
+  { word: "मित्र", english: "friend", synonyms: ["दोस्त", "सखा", "मीत"] },
+  { word: "वृक्ष", english: "tree", synonyms: ["पेड़", "तरु", "पादप"] },
+  { word: "दिन", english: "day", synonyms: ["वासर", "वार", "दिवस"] },
+  { word: "आकाश", english: "sky", synonyms: ["नभ", "गगन", "आसमान"] },
+  { word: "पानी", english: "water", synonyms: ["जल", "नीर", "वारि"] },
+  { word: "पर्वत", english: "mountain", synonyms: ["पहाड़", "शैल", "गिरि"] },
+  { word: "घर", english: "house", synonyms: ["भवन", "गृह", "सदन"] },
+  { word: "बादल", english: "cloud", synonyms: ["मेघ", "घन", "जलद"] },
+  { word: "सुबह", english: "morning", synonyms: ["प्रातः", "सवेरा", "प्रभात"] },
+  { word: "शाम", english: "evening", synonyms: ["सायं", "सांझ", "संध्या"] },
+  { word: "वर्षा", english: "rain", synonyms: ["बारिश", "बरखा", "बरसात"] },
+  { word: "कपड़ा", english: "cloth", synonyms: ["वस्त्र", "चीर", "पट"] },
+];
+
+const HINDI_PRONOUNS = [
+  { word: "मैं", english: "I", exampleHindi: "मैं विद्यार्थी हूँ।", exampleEnglish: "I am a student." },
+  { word: "हम", english: "we", exampleHindi: "हम साथ खेलते हैं।", exampleEnglish: "We play together." },
+  { word: "तुम", english: "you (informal)", exampleHindi: "तुम मेरे दोस्त हो।", exampleEnglish: "You are my friend." },
+  { word: "आप", english: "you (formal)", exampleHindi: "आप कैसे हैं?", exampleEnglish: "How are you?" },
+  { word: "वह", english: "he / she / that", exampleHindi: "वह मेरी बहन है।", exampleEnglish: "She is my sister." },
+  { word: "वे", english: "they / those", exampleHindi: "वे पार्क में खेल रहे हैं।", exampleEnglish: "They are playing in the park." },
+  { word: "यह", english: "this / he / she", exampleHindi: "यह मेरी किताब है।", exampleEnglish: "This is my book." },
+  { word: "ये", english: "these / they", exampleHindi: "ये मेरे खिलौने हैं।", exampleEnglish: "These are my toys." },
+  { word: "मेरा", english: "my (masculine)", exampleHindi: "मेरा घर पास है।", exampleEnglish: "My house is nearby." },
+  { word: "मेरी", english: "my (feminine)", exampleHindi: "मेरी बहन डॉक्टर है।", exampleEnglish: "My sister is a doctor." },
+  { word: "मुझे", english: "me / to me", exampleHindi: "मुझे आम पसंद हैं।", exampleEnglish: "I like mangoes." },
+  { word: "कौन", english: "who", exampleHindi: "वहाँ कौन है?", exampleEnglish: "Who is there?" },
+];
+
+const HINDI_CONVERSATIONS = [
+  {
+    id: "morning-greeting",
+    title: "Morning greeting",
+    lines: [
+      { speaker: "Mother", speakerHindi: "माँ", hindi: "सुप्रभात! तुम कैसे हो?", roman: "Suprabhaat! Tum kaise ho?", english: "Good morning! How are you?" },
+      { speaker: "Son", speakerHindi: "बेटा", hindi: "सुप्रभात! मैं ठीक हूँ।", roman: "Suprabhaat! Main theek hoon.", english: "Good morning! I am fine." },
+    ],
+  },
+  {
+    id: "asking-for-water",
+    title: "Asking for water",
+    lines: [
+      { speaker: "Son", speakerHindi: "बेटा", hindi: "पापा, मुझे पानी चाहिए।", roman: "Papa, mujhe paani chaahiye.", english: "Dad, I need some water." },
+      { speaker: "Father", speakerHindi: "पापा", hindi: "यह लो पानी।", roman: "Yeh lo paani.", english: "Here is some water." },
+    ],
+  },
+  {
+    id: "feeling-hungry",
+    title: "Feeling hungry",
+    lines: [
+      { speaker: "Son", speakerHindi: "बेटा", hindi: "माँ, मुझे भूख लगी है।", roman: "Maa, mujhe bhookh lagi hai.", english: "Mom, I am hungry." },
+      { speaker: "Mother", speakerHindi: "माँ", hindi: "खाना तैयार है।", roman: "Khaana taiyaar hai.", english: "The food is ready." },
+    ],
+  },
+  {
+    id: "homework-time",
+    title: "Homework time",
+    lines: [
+      { speaker: "Mother", speakerHindi: "माँ", hindi: "क्या तुम्हारा गृहकार्य हो गया?", roman: "Kya tumhaara grih-kaarya ho gaya?", english: "Is your homework finished?" },
+      { speaker: "Son", speakerHindi: "बेटा", hindi: "बस थोड़ा-सा बाकी है।", roman: "Bas thoda-sa baaki hai.", english: "Only a little is left." },
+    ],
+  },
+  {
+    id: "where-are-you-going",
+    title: "Where are you going?",
+    lines: [
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "तुम कहाँ जा रहे हो?", roman: "Tum kahaan ja rahe ho?", english: "Where are you going?" },
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "मैं स्कूल जा रहा हूँ।", roman: "Main school ja raha hoon.", english: "I am going to school." },
+    ],
+  },
+  {
+    id: "walking-together",
+    title: "Walking together",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "क्या हम साथ चलें?", roman: "Kya hum saath chalein?", english: "Shall we go together?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "हाँ, चलो!", roman: "Haan, chalo!", english: "Yes, let’s go!" },
+    ],
+  },
+  {
+    id: "asking-a-name",
+    title: "Asking a name",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "तुम्हारा नाम क्या है?", roman: "Tumhaara naam kya hai?", english: "What is your name?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "मेरा नाम आरव है।", roman: "Mera naam Aarav hai.", english: "My name is Aarav." },
+    ],
+  },
+  {
+    id: "meeting-someone",
+    title: "Meeting someone",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "तुमसे मिलकर अच्छा लगा।", roman: "Tumse milkar achchha laga.", english: "Nice to meet you." },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "मुझे भी।", roman: "Mujhe bhi.", english: "Me too." },
+    ],
+  },
+  {
+    id: "understanding-a-lesson",
+    title: "Understanding a lesson",
+    lines: [
+      { speaker: "Teacher", speakerHindi: "शिक्षिका", hindi: "क्या तुम्हें समझ आया?", roman: "Kya tumhein samajh aaya?", english: "Did you understand?" },
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "जी हाँ, समझ आया।", roman: "Ji haan, samajh aaya.", english: "Yes, I understood." },
+    ],
+  },
+  {
+    id: "asking-for-help",
+    title: "Asking for help",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "मुझे समझ नहीं आया।", roman: "Mujhe samajh nahin aaya.", english: "I did not understand." },
+      { speaker: "Teacher", speakerHindi: "शिक्षिका", hindi: "ठीक है, मैं फिर समझाती हूँ।", roman: "Theek hai, main phir samjhaati hoon.", english: "Okay, I’ll explain again." },
+    ],
+  },
+  {
+    id: "borrowing-a-pencil",
+    title: "Borrowing a pencil",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "क्या मैं तुम्हारी पेंसिल ले सकता हूँ?", roman: "Kya main tumhaari pencil le sakta hoon?", english: "May I borrow your pencil?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "हाँ, ज़रूर।", roman: "Haan, zaroor.", english: "Yes, of course." },
+    ],
+  },
+  {
+    id: "saying-thank-you",
+    title: "Saying thank you",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "धन्यवाद!", roman: "Dhanyavaad!", english: "Thank you!" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "कोई बात नहीं।", roman: "Koi baat nahin.", english: "You’re welcome." },
+    ],
+  },
+  {
+    id: "inviting-a-friend",
+    title: "Inviting a friend",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "क्या तुम बाहर खेलोगे?", roman: "Kya tum baahar kheloge?", english: "Will you play outside?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "हाँ, मैं खेलूँगा।", roman: "Haan, main kheloonga.", english: "Yes, I will." },
+    ],
+  },
+  {
+    id: "choosing-a-game",
+    title: "Choosing a game",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "हम कौन-सा खेल खेलें?", roman: "Hum kaun-sa khel khelein?", english: "Which game shall we play?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "चलो, फुटबॉल खेलते हैं।", roman: "Chalo, football khelte hain.", english: "Let’s play football." },
+    ],
+  },
+  {
+    id: "asking-permission",
+    title: "Asking permission",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "क्या मैं टीवी देख सकता हूँ?", roman: "Kya main TV dekh sakta hoon?", english: "May I watch TV?" },
+      { speaker: "Mother", speakerHindi: "माँ", hindi: "हाँ, थोड़ी देर के लिए।", roman: "Haan, thodi der ke liye.", english: "Yes, for a little while." },
+    ],
+  },
+  {
+    id: "tv-time-is-over",
+    title: "TV time is over",
+    lines: [
+      { speaker: "Mother", speakerHindi: "माँ", hindi: "अब टीवी बंद कर दो।", roman: "Ab TV band kar do.", english: "Turn off the TV now." },
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "ठीक है, माँ।", roman: "Theek hai, Maa.", english: "Okay, Mom." },
+    ],
+  },
+  {
+    id: "apologizing",
+    title: "Apologizing",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "माफ़ करना!", roman: "Maaf karna!", english: "I’m sorry!" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "कोई बात नहीं।", roman: "Koi baat nahin.", english: "It’s okay." },
+    ],
+  },
+  {
+    id: "checking-on-someone",
+    title: "Checking on someone",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "क्या तुम ठीक हो?", roman: "Kya tum theek ho?", english: "Are you okay?" },
+      { speaker: "Friend", speakerHindi: "दोस्त", hindi: "हाँ, मैं ठीक हूँ।", roman: "Haan, main theek hoon.", english: "Yes, I am fine." },
+    ],
+  },
+  {
+    id: "at-a-toy-shop",
+    title: "At a toy shop",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "यह गेंद कितने की है?", roman: "Yeh gend kitne ki hai?", english: "How much is this ball?" },
+      { speaker: "Shopkeeper", speakerHindi: "दुकानदार", hindi: "यह दो सौ रुपये की है।", roman: "Yeh do sau rupaye ki hai.", english: "It costs two hundred rupees." },
+    ],
+  },
+  {
+    id: "saying-goodbye",
+    title: "Saying goodbye",
+    lines: [
+      { speaker: "Child", speakerHindi: "बच्चा", hindi: "दादा-दादी, फिर मिलेंगे!", roman: "Dada-Dadi, phir milenge!", english: "Grandpa and Grandma, see you again!" },
+      { speaker: "Grandparents", speakerHindi: "दादा-दादी", hindi: "कल मिलते हैं।", roman: "Kal milte hain.", english: "See you tomorrow." },
+    ],
+  },
+];
+
+const HINDI_FOCUS_SYNONYM_GROUPS = [
+  { word: "पानी", synonyms: ["जल", "नीर"] },
+  { word: "बादल", synonyms: ["मेघ"] },
+  { word: "पर्वत", synonyms: ["पहाड़"] },
+  { word: "सुबह", synonyms: ["प्रातः"] },
+  { word: "वर्षा", synonyms: ["बारिश"] },
+  { word: "दिन", synonyms: ["दिवस"] },
+  { word: "घर", synonyms: ["गृह", "सदन"] },
+  { word: "कपड़ा", synonyms: ["वस्त्र"] },
+  { word: "शाम", synonyms: ["संध्या"] },
+  { word: "मित्र", synonyms: ["सखा", "दोस्त"] },
+  { word: "माता", synonyms: ["अम्बा", "माँ", "जननी"] },
+  { word: "वृक्ष", synonyms: ["पादप", "तरु"] },
+  { word: "बालक", synonyms: ["शिशु", "लड़का"] },
+  { word: "बाग", synonyms: ["उपवन", "वाटिका"] },
+  { word: "फूल", synonyms: ["कुसुम", "पुष्प"] },
+  { word: "पिता", synonyms: ["तात", "जनक"] },
+  { word: "आकाश", synonyms: ["गगन", "नभ"] },
+];
+
+const HINDI_WORD_MEANING_MAP = {
+  "रात": "night",
+  "दिन": "day",
+  "छोटा": "small",
+  "बड़ा": "big",
+  "मोटा": "fat",
+  "पतला": "thin",
+  "कम": "less",
+  "अधिक": "more",
+  "नया": "new",
+  "पुराना": "old",
+  "ऊँचा": "high",
+  "नीचा": "low",
+  "लेना": "take",
+  "देना": "give",
+  "जीत": "victory",
+  "हार": "defeat",
+  "सच": "truth",
+  "झूठ": "lie",
+  "अमीर": "rich",
+  "गरीब": "poor",
+  "टेढ़ा": "crooked",
+  "सीधा": "straight",
+  "मित्र": "friend",
+  "शत्रु": "enemy",
+  "सरल": "easy",
+  "कठिन": "difficult",
+  "मीठा": "sweet",
+  "खट्टा": "sour",
+  "कच्चा": "raw",
+  "पक्का": "ripe",
+  "सफल": "successful",
+  "असफल": "unsuccessful",
+  "निडर": "fearless",
+  "डरपोक": "cowardly",
+  "मूर्ख": "foolish",
+  "चतुर": "clever",
+  "असली": "real",
+  "नकली": "fake",
+  "प्रसन्न": "happy",
+  "अप्रसन्न": "unhappy",
+  "पूरा": "full",
+  "अधूरा": "incomplete",
+  "दूर": "far",
+  "निकट": "near",
+  "मेहनती": "hardworking",
+  "आलसी": "lazy",
+  "सुबह": "morning",
+  "शाम": "evening",
+  "अपना": "own",
+  "पराया": "others'",
+  "बदबू": "bad smell",
+  "खुशबू": "fragrance",
+  "शीघ्र": "quick",
+  "देर": "late",
+  "खरीदना": "buy",
+  "बेचना": "sell",
+  "हल्का": "light",
+  "भारी": "heavy",
+  "प्रश्न": "question",
+  "उत्तर": "answer",
+  "ठंडा": "cold",
+  "गरम": "hot",
+  "हँसना": "laugh",
+  "रोना": "cry",
+  "गरमी": "heat",
+  "सर्दी": "cold weather",
+};
 
 const state = {
   language: "kannada",
@@ -189,14 +498,16 @@ const state = {
 };
 
 const LEARN_TOPICS_BY_LANGUAGE = {
-  kannada: ["gunita", "varnamaale_all", "varnamaale_swara", "varnamaale_vyanjana", "numbers"],
-  hindi: ["hindi_opposites_learning"],
+  kannada: ["gunita", "ottakshara", "varnamaale_all", "varnamaale_swara", "varnamaale_vyanjana", "numbers"],
+  hindi: ["hindi_opposites_learning", "hindi_synonyms_learning", "hindi_pronouns_learning", "hindi_conversations_learning"],
 };
 
 const QUIZ_TOPICS_BY_LANGUAGE = {
-  kannada: ["gunita_quiz", "varnamaale_quiz", "ottakshara_quiz", "numbers_quiz"],
-  hindi: ["hindi_opposites_quiz", "hindi_opposites_picture_quiz"],
+  kannada: ["gunita_quiz", "varnamaale_quiz", "numbers_quiz"],
+  hindi: ["hindi_opposites_quiz", "hindi_opposites_picture_quiz", "hindi_synonyms_quiz", "hindi_pronouns_quiz", "hindi_conversations_quiz"],
 };
+
+const selectedHindiSetByKind = { opposites: 0, synonyms: 0 };
 
 let availableVoices = [];
 const audioCache = new Map();
@@ -236,7 +547,10 @@ function getGunitaMeta(item) {
   if (state.learn.topic !== "gunita") {
     return null;
   }
-  return GUNITA_SIGN_META[item.id] || null;
+  if (typeof item?.base !== "string" || typeof item?.sign !== "string") {
+    return null;
+  }
+  return { base: item.base, sign: item.sign, family: item.family || "a" };
 }
 
 function getGunitaCardHTML(item, withSplit) {
@@ -247,18 +561,21 @@ function getGunitaCardHTML(item, withSplit) {
 
   const familyClass = `gunita-family-${gunitaMeta.family}`;
   const signText = gunitaMeta.sign || "∅";
-  const combined = `<span class="gunita-combo"><span class="gunita-base">ಕ</span><span class="gunita-sign ${familyClass}">${gunitaMeta.sign}</span></span>`;
   const finalJoined = `<span class="gunita-final">${item.text}</span>`;
 
   if (!withSplit) {
     return finalJoined;
   }
 
-  return `${finalJoined}<div class="gunita-split"><span class="gunita-base">ಕ</span> + <span class="gunita-sign ${familyClass}">${signText}</span> = ${finalJoined}</div>`;
+  return `${finalJoined}<div class="gunita-split"><span class="gunita-base">${gunitaMeta.base}</span> + <span class="gunita-sign ${familyClass}">${signText}</span> = ${finalJoined}</div>`;
 }
 
 function setLearnCardContent(item, withSplit = false) {
   const gunitaMeta = getGunitaMeta(item);
+  if (state.learn.topic === "numbers") {
+    learnCard.innerHTML = `<span class="number-learning-content"><span class="number-numeral">${item.text}</span><span class="number-name">${item.sound}</span></span>`;
+    return;
+  }
   if (!gunitaMeta) {
     learnCard.textContent = item.text;
     return;
@@ -268,6 +585,10 @@ function setLearnCardContent(item, withSplit = false) {
 
 function setLearnOptionContent(button, option) {
   const gunitaMeta = getGunitaMeta(option);
+  if (state.learn.topic === "numbers") {
+    button.innerHTML = `<span class="number-option-content"><span>${option.text}</span><span class="number-option-name">${option.sound}</span></span>`;
+    return;
+  }
   if (!gunitaMeta) {
     button.textContent = option.text;
     return;
@@ -413,6 +734,18 @@ function speakItem(item) {
       speakFallback(item);
     }
   });
+}
+
+function speakHindiConversation(conversation) {
+  const text = conversation?.lines?.map((line) => line.hindi).join(" ... ") || conversation?.text || "";
+  speakItem({ text, sound: text });
+}
+
+function speakLearningItem(item) {
+  if (state.learn.topic === "hindi_conversations_learning") {
+    return;
+  }
+  speakItem(item);
 }
 
 function getTraceFilePathForItem(item) {
@@ -657,7 +990,15 @@ function getGunitaItems() {
   if (!gunitaLevel) {
     return [];
   }
-  return [...gunitaLevel.items];
+  const selectedSeriesId = gunitaSeriesSelect?.value;
+  if (!selectedSeriesId) {
+    return [...gunitaLevel.items];
+  }
+  return gunitaLevel.items.filter((item) => item.seriesId === selectedSeriesId);
+}
+
+function getSelectedGunitaBase() {
+  return GUNITA_BASE_LETTERS.find((base) => base.id === gunitaSeriesSelect?.value) || GUNITA_BASE_LETTERS[0];
 }
 
 function getVarnamaaleItems(topic) {
@@ -685,7 +1026,17 @@ function getNumbersItems() {
   return [...numbersLevel.items];
 }
 
+function getOttaksharaItems() {
+  const ottaksharaLevel = getLevelById("ottakshara");
+  if (!ottaksharaLevel) {
+    return [];
+  }
+  return [...ottaksharaLevel.items];
+}
+
 function getHindiOppositesLearningItems() {
+  const setIndex = getSelectedHindiSetIndex();
+  const startIndex = setIndex * HINDI_SET_SIZE;
   return HINDI_OPPOSITES_PAIRS.map(([text, oppositeText], index) => ({
     id: `hindi-learning-${index}`,
     text,
@@ -694,15 +1045,166 @@ function getHindiOppositesLearningItems() {
     oppositeText,
     oppositeSound: oppositeText,
     oppositeAudio: HINDI_OPPOSITES_AUDIO_MAP[oppositeText] || null,
+  })).slice(startIndex, startIndex + HINDI_SET_SIZE);
+}
+
+function getHindiSynonymItems() {
+  const setIndex = getSelectedHindiSynonymSetIndex();
+  if (setIndex === HINDI_SYNONYM_SET_COUNT - 1) {
+    return HINDI_FOCUS_SYNONYM_GROUPS.map(({ word, synonyms }, index) => {
+      const entry = HINDI_SYNONYMS.find((candidate) => candidate.word === word);
+      return {
+        id: `hindi-synonym-focus-${index}`,
+        text: word,
+        sound: word,
+        english: entry?.english || "",
+        synonyms: [...synonyms],
+        focusPair: true,
+      };
+    });
+  }
+
+  const startIndex = setIndex * HINDI_SYNONYM_SET_SIZE;
+  return HINDI_SYNONYMS.map((entry, index) => ({
+    id: `hindi-synonym-${index}`,
+    text: entry.word,
+    sound: entry.word,
+    english: entry.english,
+    synonyms: [...entry.synonyms],
+  })).slice(startIndex, startIndex + HINDI_SYNONYM_SET_SIZE);
+}
+
+function getHindiConversationItems() {
+  return HINDI_CONVERSATIONS.map((conversation) => ({
+    ...conversation,
+    image: `hindi_conversation_images/${conversation.id}.png`,
+    text: conversation.lines.map((line) => line.hindi).join(" "),
+    sound: conversation.lines.map((line) => line.roman).join(" / "),
   }));
+}
+
+function getHindiPronounItems() {
+  return HINDI_PRONOUNS.map((pronoun, index) => ({
+    id: `hindi-pronoun-${index}`,
+    text: pronoun.word,
+    sound: pronoun.word,
+    english: pronoun.english,
+    exampleHindi: pronoun.exampleHindi,
+    exampleEnglish: pronoun.exampleEnglish,
+  }));
+}
+
+function getSelectedHindiSynonymSetIndex() {
+  const selectedIndex = Number(hindiSetSelect?.value || 0);
+  return Math.min(Math.max(selectedIndex, 0), HINDI_SYNONYM_SET_COUNT - 1);
+}
+
+function getSelectedHindiSynonymSetNumber() {
+  return getSelectedHindiSynonymSetIndex() + 1;
+}
+
+function configureHindiSetSelect(topic) {
+  const nextKind = topic.includes("conversation")
+    ? "conversations"
+    : topic.includes("pronoun")
+      ? "pronouns"
+    : topic.includes("synonym")
+      ? "synonyms"
+      : "opposites";
+  const currentKind = hindiSetSelect?.dataset.kind;
+
+  if (nextKind === "conversations" || nextKind === "pronouns") {
+    hindiSetLabel?.classList.add("hidden");
+    hindiSetSelect?.classList.add("hidden");
+    return;
+  }
+
+  if (currentKind && currentKind !== nextKind) {
+    selectedHindiSetByKind[currentKind] = Number(hindiSetSelect.value || 0);
+  }
+
+  if (currentKind !== nextKind) {
+    const themes = nextKind === "synonyms" ? HINDI_SYNONYM_SET_THEMES : HINDI_SET_THEMES;
+    hindiSetSelect.replaceChildren(...themes.map((theme, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = `${theme.icon} Set ${index + 1} — ${theme.name}`;
+      return option;
+    }));
+    hindiSetSelect.dataset.kind = nextKind;
+    hindiSetSelect.value = String(selectedHindiSetByKind[nextKind] || 0);
+  }
+
+  if (hindiSetLabel) {
+    hindiSetLabel.textContent = nextKind === "synonyms" ? "Synonyms Learning & Quiz Set" : "Opposites Learning & Quiz Set";
+  }
+  const showSetSelect = state.language === "hindi";
+  hindiSetLabel?.classList.toggle("hidden", !showSetSelect);
+  hindiSetSelect?.classList.toggle("hidden", !showSetSelect);
+}
+
+function getSelectedHindiSetIndex() {
+  const selectedIndex = Number(hindiSetSelect?.value || 0);
+  return Math.min(Math.max(selectedIndex, 0), HINDI_SET_COUNT - 1);
+}
+
+function getSelectedHindiSetNumber() {
+  return getSelectedHindiSetIndex() + 1;
+}
+
+function getSelectedHindiSetTheme() {
+  return HINDI_SET_THEMES[getSelectedHindiSetIndex()];
+}
+
+function getHindiStarProgress(completed, total) {
+  const safeCompleted = Math.min(Math.max(completed, 0), total);
+  return `${"⭐".repeat(safeCompleted)}${"☆".repeat(Math.max(total - safeCompleted, 0))}`;
+}
+
+function showHindiCelebration(message) {
+  document.querySelector(".hindi-celebration")?.remove();
+
+  const celebration = document.createElement("div");
+  celebration.className = "hindi-celebration";
+  celebration.setAttribute("role", "status");
+  celebration.innerHTML = `<div class="hindi-celebration-card"><span class="hindi-celebration-icons">🎉 ⭐ 🏆 ⭐ 🎉</span><strong>${message}</strong><span>बहुत बढ़िया!</span></div>`;
+
+  ["🎊", "⭐", "✨", "🌈", "🎉", "🏆", "⭐", "🎊"].forEach((symbol, index) => {
+    const particle = document.createElement("span");
+    particle.className = "hindi-celebration-particle";
+    particle.textContent = symbol;
+    particle.style.left = `${8 + index * 12}%`;
+    particle.style.animationDelay = `${index * 90}ms`;
+    celebration.appendChild(particle);
+  });
+
+  document.body.appendChild(celebration);
+  window.setTimeout(() => celebration.remove(), 2800);
+}
+
+function getHindiWordLabel(wordText) {
+  const meaning = HINDI_WORD_MEANING_MAP[wordText];
+  return meaning ? `${wordText} (${meaning})` : wordText;
 }
 
 function getLearningItems(topic) {
   if (topic === "gunita") {
     return getGunitaItems();
   }
+  if (topic === "ottakshara") {
+    return getOttaksharaItems();
+  }
   if (topic === "hindi_opposites_learning") {
     return getHindiOppositesLearningItems();
+  }
+  if (topic === "hindi_synonyms_learning") {
+    return getHindiSynonymItems();
+  }
+  if (topic === "hindi_conversations_learning") {
+    return getHindiConversationItems();
+  }
+  if (topic === "hindi_pronouns_learning") {
+    return getHindiPronounItems();
   }
   if (topic === "numbers") {
     return getNumbersItems();
@@ -736,10 +1238,20 @@ function syncLanguageDependentTopics() {
 
   setVisibleSelectOptions(learnTopicSelect, learnTopics);
   setVisibleSelectOptions(quizTopicSelect, quizTopics);
+  document.querySelectorAll(".hindi-only").forEach((element) => {
+    element.classList.toggle("hidden", language !== "hindi");
+  });
+  document.body.classList.toggle("hindi-active", language === "hindi");
+  appTitle.textContent = language === "hindi" ? "Hindi Word Adventure" : "Kannada Letters Learning";
+  appSubtitle.textContent = language === "hindi"
+    ? "Listen, explore pictures, and practise Hindi words and everyday conversations!"
+    : "Learn Kannada letters through listening, matching, and practice.";
 }
 
 function startLearningMode() {
   const topic = learnTopicSelect.value;
+  gunitaSeriesControl.classList.toggle("hidden", topic !== "gunita");
+  configureHindiSetSelect(topic);
   const items = getLearningItems(topic);
 
   state.mode = "learn";
@@ -764,12 +1276,19 @@ function startLearningMode() {
   renderLearning();
   const firstItem = currentLearnItem();
   if (firstItem) {
-    speakItem(firstItem);
+    speakLearningItem(firstItem);
   }
   updateLearnControlsVisibility();
   if (topic === "gunita") {
-    learnTitle.textContent = "Gunitaakshara Learning";
-    updateStatus("Learning Gunitaakshara: listen and tap Next.");
+    const selectedBase = getSelectedGunitaBase();
+    learnTitle.textContent = `Gunitaakshara Learning — ${selectedBase.text}`;
+    updateStatus(`Learning the ${selectedBase.text} series: 12 forms. Listen and tap Next.`);
+    return;
+  }
+
+  if (topic === "ottakshara") {
+    learnTitle.textContent = "Ottakshara Learning";
+    updateStatus("Learning Ottakshara: listen and tap Next.");
     return;
   }
 
@@ -780,8 +1299,32 @@ function startLearningMode() {
   }
 
   if (topic === "hindi_opposites_learning") {
-    learnTitle.textContent = "Hindi Opposites Learning";
-    updateStatus("Learning Hindi opposites: tap each picture for audio, then Next.");
+    const setNumber = getSelectedHindiSetNumber();
+    const theme = getSelectedHindiSetTheme();
+    learnTitle.textContent = `${theme.icon} Hindi Opposites — Set ${setNumber}: ${theme.name}`;
+    updateStatus(`Ready, little explorer? Tap both pictures and earn all ${HINDI_SET_SIZE} stars!`);
+    return;
+  }
+
+  if (topic === "hindi_synonyms_learning") {
+    const setNumber = getSelectedHindiSynonymSetNumber();
+    const theme = HINDI_SYNONYM_SET_THEMES[setNumber - 1];
+    learnTitle.textContent = `${theme.icon} Hindi Synonyms — Set ${setNumber}: ${theme.name}`;
+    updateStatus(items[0]?.focusPair
+      ? `Practice ${items.reduce((total, item) => total + item.synonyms.length, 0)} selected synonym relationships across ${items.length} words.`
+      : `Explore ${items.length} picture words and learn three synonyms for each one!`);
+    return;
+  }
+
+  if (topic === "hindi_conversations_learning") {
+    learnTitle.textContent = "💬 Hindi Conversations";
+    updateStatus(`Learn ${items.length} everyday conversations with Hindi audio and English meaning.`);
+    return;
+  }
+
+  if (topic === "hindi_pronouns_learning") {
+    learnTitle.textContent = "🙋 Hindi Sarvanam / Pronouns";
+    updateStatus(`Learn ${items.length} common Hindi pronouns and see each one in a sentence.`);
     return;
   }
 
@@ -916,7 +1459,21 @@ function advanceLearning() {
     if (state.learn.index >= state.learn.items.length) {
       state.learn.phase = "done";
       renderLearning();
-      updateStatus("Lesson complete 🎉 Great learning!");
+      if (state.learn.topic === "hindi_opposites_learning") {
+        showHindiCelebration(`Set ${getSelectedHindiSetNumber()} complete!`);
+        updateStatus("All 11 stars collected! शानदार काम! 🌟");
+      } else if (state.learn.topic === "hindi_synonyms_learning") {
+        showHindiCelebration(`Synonyms Set ${getSelectedHindiSynonymSetNumber()} complete!`);
+        updateStatus(`All ${state.learn.items.length} synonym ${state.learn.items[0]?.focusPair ? "focus groups" : "families"} learned! बहुत बढ़िया! 🌼`);
+      } else if (state.learn.topic === "hindi_conversations_learning") {
+        showHindiCelebration("Conversation lesson complete!");
+        updateStatus(`You practised all ${state.learn.items.length} Hindi conversations! बहुत बढ़िया! 💬`);
+      } else if (state.learn.topic === "hindi_pronouns_learning") {
+        showHindiCelebration("Pronoun lesson complete!");
+        updateStatus(`You learned all ${state.learn.items.length} Hindi pronouns! बहुत बढ़िया! 🙋`);
+      } else {
+        updateStatus("Lesson complete 🎉 Great learning!");
+      }
       return;
     }
 
@@ -926,9 +1483,13 @@ function advanceLearning() {
     renderLearning();
     const nextItem = currentLearnItem();
     if (nextItem) {
-      speakItem(nextItem);
+      speakLearningItem(nextItem);
     }
-    updateStatus("Moved to next letter.");
+    updateStatus(state.learn.topic === "hindi_conversations_learning"
+      ? "Moved to the next conversation."
+      : state.learn.topic === "hindi_pronouns_learning"
+        ? "Moved to the next pronoun."
+        : "Moved to next letter.");
     return;
   }
 
@@ -995,9 +1556,43 @@ function advanceLearning() {
   }
 }
 
+function goToPreviousLearningItem() {
+  if (state.learn.items.length === 0 || state.learn.boostupActive) {
+    return;
+  }
+
+  if (state.learn.phase === "done") {
+    state.learn.index = state.learn.items.length - 1;
+  } else if (state.learn.phase === "show" && state.learn.index > 0) {
+    state.learn.index -= 1;
+  } else {
+    return;
+  }
+
+  state.learn.phase = "show";
+  state.learn.options = [];
+  state.learn.selectedOptionId = null;
+  renderLearning();
+  const item = currentLearnItem();
+  if (item) {
+    speakLearningItem(item);
+  }
+  updateStatus(state.learn.topic === "hindi_conversations_learning"
+    ? "Moved to the previous conversation."
+    : state.learn.topic === "hindi_pronouns_learning"
+      ? "Moved to the previous pronoun."
+      : "Moved to the previous word.");
+}
+
 function renderLearning() {
   const item = currentLearnItem();
   const isHindiOppositesLearning = state.learn.topic === "hindi_opposites_learning";
+  const isHindiSynonymsLearning = state.learn.topic === "hindi_synonyms_learning";
+  const isHindiConversationLearning = state.learn.topic === "hindi_conversations_learning";
+  const isHindiPronounLearning = state.learn.topic === "hindi_pronouns_learning";
+  if (!isHindiPronounLearning) {
+    learnOptions.classList.remove("hindi-pronoun-grid");
+  }
 
   if (!item && state.learn.phase !== "done") {
     learnStepText.textContent = "No items found for this group.";
@@ -1007,6 +1602,7 @@ function renderLearning() {
     learnOptions.innerHTML = "";
     learnPrimaryBtn.textContent = "Restart Lesson";
     learnPrimaryBtn.disabled = false;
+    learnPreviousBtn.classList.add("hidden");
     learnRetryMistakesBtn.classList.add("hidden");
     updateTracePanel(null);
     state.learn.phase = "done";
@@ -1019,8 +1615,16 @@ function renderLearning() {
       ? "Completed Boostup Match"
       : isHindiOppositesLearning
         ? "Completed Hindi Opposites"
+      : isHindiSynonymsLearning
+        ? "Completed Hindi Synonyms"
+      : isHindiConversationLearning
+        ? "Completed Hindi Conversations"
+      : isHindiPronounLearning
+        ? "Completed Hindi Pronouns"
       : state.learn.topic === "gunita"
         ? "Completed Gunitaakshara"
+      : state.learn.topic === "ottakshara"
+        ? "Completed Ottakshara"
         : "Completed Varnamaale";
     learnCard.classList.remove("hidden");
     learnCard.textContent = "🎉";
@@ -1030,19 +1634,47 @@ function renderLearning() {
     learnOptions.innerHTML = "";
     learnPrimaryBtn.textContent = "Restart Lesson";
     learnPrimaryBtn.disabled = false;
-    const canBoostup = !state.learn.boostupActive && total > 1 && !isHindiOppositesLearning;
+    learnPreviousBtn.textContent = isHindiOppositesLearning
+      ? "Previous Pair"
+      : isHindiSynonymsLearning
+        ? "Previous Word"
+        : isHindiConversationLearning
+          ? "Previous Conversation"
+        : isHindiPronounLearning
+          ? "Previous Pronoun"
+          : "Previous";
+    learnPreviousBtn.disabled = total === 0 || state.learn.boostupActive;
+    learnPreviousBtn.classList.toggle("hidden", total === 0 || state.learn.boostupActive);
+    const canBoostup = !state.learn.boostupActive && total > 1 && !isHindiOppositesLearning && !isHindiSynonymsLearning && !isHindiConversationLearning && !isHindiPronounLearning;
     learnRetryMistakesBtn.classList.toggle("hidden", !canBoostup);
     updateTracePanel(null);
     return;
   }
 
   learnRetryMistakesBtn.classList.add("hidden");
+  learnPreviousBtn.textContent = isHindiOppositesLearning
+    ? "Previous Pair"
+    : isHindiSynonymsLearning
+      ? "Previous Word"
+      : isHindiConversationLearning
+        ? "Previous Conversation"
+      : isHindiPronounLearning
+        ? "Previous Pronoun"
+        : "Previous";
 
   const stepNumber = state.learn.index + 1;
   const total = state.learn.items.length;
   learnStepText.textContent = state.learn.boostupActive
     ? `Boostup Round ${state.learn.boostupRound} • Question ${stepNumber} of ${total}`
-    : `Item ${stepNumber} of ${total}`;
+    : isHindiOppositesLearning
+      ? `${getHindiStarProgress(state.learn.index, total)} • Pair ${stepNumber} of ${total}`
+    : isHindiSynonymsLearning
+      ? `${getHindiStarProgress(state.learn.index, total)} • Word ${stepNumber} of ${total}`
+    : isHindiConversationLearning
+      ? `Conversation ${stepNumber} of ${total}`
+    : isHindiPronounLearning
+      ? `Pronoun ${stepNumber} of ${total}`
+      : `Item ${stepNumber} of ${total}`;
 
   setLearnCardContent(item, false);
   learnCard.onclick = () => {
@@ -1051,12 +1683,160 @@ function renderLearning() {
   updateTracePanel(item);
 
   if (state.learn.phase === "show") {
+    learnPreviousBtn.classList.remove("hidden");
+    learnPreviousBtn.disabled = state.learn.index === 0;
+    if (isHindiConversationLearning) {
+      learnPrompt.textContent = "Tap 🔊 to hear each Hindi sentence. The English explanation appears below it.";
+      learnCard.classList.remove("hidden");
+      learnCard.textContent = `💬 ${item.title}`;
+      learnCard.onclick = () => speakHindiConversation(item);
+      learnOptions.innerHTML = "";
+      learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-synonym-learning-grid");
+      learnOptions.classList.add("hindi-conversation-grid");
+
+      const illustration = document.createElement("img");
+      illustration.className = "conversation-illustration";
+      illustration.src = item.image;
+      illustration.alt = `Illustration for ${item.title}`;
+      illustration.loading = "lazy";
+      illustration.addEventListener("error", () => illustration.classList.add("hidden"));
+      learnOptions.appendChild(illustration);
+
+      const playAllButton = document.createElement("button");
+      playAllButton.type = "button";
+      playAllButton.className = "conversation-play-all";
+      playAllButton.textContent = "🔊 Play full conversation";
+      playAllButton.addEventListener("click", () => speakHindiConversation(item));
+      learnOptions.appendChild(playAllButton);
+
+      item.lines.forEach((line, lineIndex) => {
+        const lineCard = document.createElement("article");
+        lineCard.className = "conversation-line-card";
+
+        const header = document.createElement("div");
+        header.className = "conversation-line-header";
+
+        const speaker = document.createElement("strong");
+        speaker.textContent = `${line.speakerHindi} · ${line.speaker}`;
+
+        const playButton = document.createElement("button");
+        playButton.type = "button";
+        playButton.className = "conversation-audio-button";
+        playButton.textContent = "🔊 Hindi audio";
+        playButton.setAttribute("aria-label", `Play Hindi sentence ${lineIndex + 1}`);
+        playButton.addEventListener("click", () => {
+          speakItem({ text: line.hindi, sound: line.roman });
+          updateStatus(`Playing Hindi: ${line.hindi}`);
+        });
+
+        const hindi = document.createElement("p");
+        hindi.className = "conversation-hindi";
+        hindi.textContent = line.hindi;
+
+        const english = document.createElement("p");
+        english.className = "conversation-english";
+        english.textContent = `English: ${line.english}`;
+
+        header.appendChild(speaker);
+        header.appendChild(playButton);
+        lineCard.appendChild(header);
+        lineCard.appendChild(hindi);
+        lineCard.appendChild(english);
+        learnOptions.appendChild(lineCard);
+      });
+
+      learnPrimaryBtn.textContent = state.learn.index + 1 === total ? "Finish" : "Next Conversation";
+      learnPrimaryBtn.disabled = false;
+      updateTracePanel(null);
+      return;
+    }
+
+    if (isHindiPronounLearning) {
+      learnPrompt.textContent = "Learn the pronoun, then tap the sentence to hear how it is used.";
+      learnCard.classList.remove("hidden");
+      learnCard.textContent = `${item.text} — ${item.english}`;
+      learnCard.onclick = () => speakItem(item);
+      learnOptions.innerHTML = "";
+      learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-synonym-learning-grid", "hindi-conversation-grid");
+      learnOptions.classList.add("hindi-pronoun-grid");
+
+      const exampleCard = document.createElement("button");
+      exampleCard.type = "button";
+      exampleCard.className = "learn-option hindi-pronoun-example";
+      exampleCard.setAttribute("aria-label", `Play example sentence: ${item.exampleHindi}`);
+
+      const hindi = document.createElement("strong");
+      hindi.className = "hindi-pronoun-example-hindi";
+      hindi.textContent = `🔊 ${item.exampleHindi}`;
+
+      const english = document.createElement("span");
+      english.className = "hindi-pronoun-example-english";
+      english.textContent = `English: ${item.exampleEnglish}`;
+
+      exampleCard.appendChild(hindi);
+      exampleCard.appendChild(english);
+      exampleCard.addEventListener("click", () => {
+        speakItem({ text: item.exampleHindi, sound: item.exampleHindi });
+        updateStatus(`Example: ${item.exampleHindi} — ${item.exampleEnglish}`);
+      });
+      learnOptions.appendChild(exampleCard);
+
+      learnPrimaryBtn.textContent = state.learn.index + 1 === total ? "Finish" : "Next Pronoun";
+      learnPrimaryBtn.disabled = false;
+      updateTracePanel(null);
+      return;
+    }
+
+    if (isHindiSynonymsLearning) {
+      learnPrompt.textContent = "Tap the picture or any synonym to hear it aloud.";
+      learnCard.classList.remove("hidden");
+      learnCard.textContent = `${item.text} (${item.english})`;
+      learnCard.onclick = () => speakItem(item);
+      learnOptions.innerHTML = "";
+      learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-conversation-grid");
+      learnOptions.classList.add("hindi-synonym-learning-grid");
+
+      const pictureButton = document.createElement("button");
+      pictureButton.type = "button";
+      pictureButton.className = "learn-option hindi-synonym-picture";
+      pictureButton.setAttribute("aria-label", `Play ${item.text}`);
+      const image = document.createElement("img");
+      image.className = "hindi-synonym-image";
+      attachHindiSynonymImageSource(image, item.text);
+      image.alt = item.text;
+      pictureButton.appendChild(image);
+      pictureButton.addEventListener("click", () => speakItem(item));
+
+      const synonymList = document.createElement("div");
+      synonymList.className = "hindi-synonym-list";
+      synonymList.classList.toggle("focus-pair", item.focusPair === true);
+      item.synonyms.forEach((synonym) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "learn-option hindi-synonym-chip";
+        button.textContent = `🔊 ${synonym}`;
+        button.addEventListener("click", () => {
+          speakItem({ text: synonym, sound: synonym });
+          updateStatus(`${item.text} का समानार्थी शब्द: ${synonym}`);
+        });
+        synonymList.appendChild(button);
+      });
+
+      learnOptions.appendChild(pictureButton);
+      learnOptions.appendChild(synonymList);
+      learnPrimaryBtn.textContent = state.learn.index + 1 === total ? "Finish" : "Next Word";
+      learnPrimaryBtn.disabled = false;
+      updateTracePanel(null);
+      return;
+    }
+
     if (isHindiOppositesLearning) {
       learnPrompt.textContent = "Tap each picture to hear the word and its opposite.";
       learnCard.classList.remove("hidden");
       learnCard.textContent = "विलोम शब्द";
       learnCard.onclick = null;
       learnOptions.innerHTML = "";
+      learnOptions.classList.remove("hindi-synonym-learning-grid", "hindi-conversation-grid");
       learnOptions.classList.add("hindi-learning-pair-grid");
 
       const createPairButton = (wordText, wordAudio) => {
@@ -1073,7 +1853,7 @@ function renderLearning() {
 
         const label = document.createElement("span");
         label.className = "hindi-learning-pair-label";
-        label.textContent = wordText;
+        label.textContent = getHindiWordLabel(wordText);
 
         const audioBadge = document.createElement("span");
         audioBadge.className = "hindi-learning-audio-badge";
@@ -1084,6 +1864,7 @@ function renderLearning() {
         button.appendChild(label);
         button.addEventListener("click", () => {
           speakItem({ text: wordText, sound: wordText, audio: wordAudio || null });
+          updateStatus(`🔊 ${getHindiWordLabel(wordText)} — now tap its opposite too!`);
         });
 
         return button;
@@ -1097,7 +1878,7 @@ function renderLearning() {
       return;
     }
 
-    learnOptions.classList.remove("hindi-learning-pair-grid");
+    learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-synonym-learning-grid", "hindi-conversation-grid");
     learnPrompt.textContent = `Listen and repeat: ${getBaseSound(item.sound)} (tap card to hear)`;
     learnOptions.innerHTML = "";
     learnCard.classList.remove("hidden");
@@ -1111,7 +1892,8 @@ function renderLearning() {
   }
 
   if (state.learn.phase === "quiz") {
-    learnOptions.classList.remove("hindi-learning-pair-grid");
+    learnPreviousBtn.classList.add("hidden");
+    learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-conversation-grid");
     learnPrompt.textContent = state.learn.boostupActive
       ? "Boostup: listen to the sound and pick the correct Kannada letter."
       : "Listen to the sound and pick the correct Kannada.";
@@ -1135,7 +1917,8 @@ function renderLearning() {
   }
 
   if (state.learn.phase === "feedback") {
-    learnOptions.classList.remove("hindi-learning-pair-grid");
+    learnPreviousBtn.classList.add("hidden");
+    learnOptions.classList.remove("hindi-learning-pair-grid", "hindi-conversation-grid");
     learnPrompt.textContent = state.learn.boostupActive
       ? `Boostup answer check for: ${getBaseSound(item.sound)}`
       : `Answer check for: ${getBaseSound(item.sound)}`;
@@ -1175,6 +1958,47 @@ function currentQuizItem() {
 }
 
 function buildQuiz49Choices(correctItem) {
+  if (state.quiz.topic === "hindi_pronouns_quiz") {
+    const distractors = shuffle(
+      state.quiz.items
+        .filter((item) => item.id !== correctItem.id && item.english !== correctItem.english)
+        .map((item) => ({ id: item.id, text: item.english, sound: item.english })),
+    ).slice(0, 3);
+    return shuffle([
+      { id: correctItem.id, text: correctItem.english, sound: correctItem.english },
+      ...distractors,
+    ]);
+  }
+
+  if (state.quiz.topic === "hindi_conversations_quiz") {
+    const uniqueDistractors = Array.from(new Map(
+      state.quiz.items
+        .filter((item) => item.id !== correctItem.id && item.text !== correctItem.text)
+        .map((item) => [item.text, { id: item.id, text: item.text, sound: item.sound }]),
+    ).values());
+    const distractors = shuffle(uniqueDistractors).slice(0, 3);
+    return shuffle([
+      { id: correctItem.id, text: correctItem.text, sound: correctItem.sound },
+      ...distractors,
+    ]);
+  }
+
+  if (state.quiz.topic === "hindi_synonyms_quiz") {
+    const distractors = shuffle(
+      state.quiz.items
+        .filter((item) => item.text !== correctItem.text)
+        .map((item) => ({
+          id: item.id,
+          text: item.answerText,
+          sound: item.answerText,
+        })),
+    ).slice(0, 3);
+    return shuffle([
+      { id: correctItem.id, text: correctItem.answerText, sound: correctItem.answerText },
+      ...distractors,
+    ]);
+  }
+
   if (state.quiz.topic === "hindi_opposites_picture_quiz") {
     const distractors = shuffle(
       state.quiz.items
@@ -1216,11 +2040,7 @@ function buildQuiz49Choices(correctItem) {
     return shuffle([correctItem, ...distractors]);
   }
 
-  const levelId = state.quiz.topic === "numbers_quiz"
-    ? "numbers"
-    : state.quiz.topic === "ottakshara_quiz"
-      ? "ottakshara"
-      : "varnamaale";
+  const levelId = state.quiz.topic === "numbers_quiz" ? "numbers" : "varnamaale";
   const activeLevel = getLevelById(levelId);
   if (!activeLevel) {
     return [correctItem];
@@ -1232,32 +2052,24 @@ function buildQuiz49Choices(correctItem) {
 
 function buildGunitaQuizItems() {
   const gunitaLevel = getLevelById("gunita");
-  const varnamaaleLevel = getLevelById("varnamaale");
-  if (!gunitaLevel || !varnamaaleLevel) {
+  if (!gunitaLevel) {
     return [];
   }
 
-  const consonants = varnamaaleLevel.items.filter((item) => !SWARA_IDS.has(item.id));
-  if (consonants.length === 0) {
+  const seriesIds = [...new Set(gunitaLevel.items.map((item) => item.seriesId).filter(Boolean))];
+  if (seriesIds.length === 0) {
     return [];
   }
 
-  const chosenConsonant = consonants[Math.floor(Math.random() * consonants.length)];
-
-  return gunitaLevel.items.map((template, index) => {
-    const signMeta = GUNITA_SIGN_META[template.id] || { sign: "" };
-    const text = `${chosenConsonant.text}${signMeta.sign || ""}`;
-    return {
-      id: `gunita-q-${index}-${template.id}-${chosenConsonant.id}`,
-      sourceId: template.id,
-      consonantId: chosenConsonant.id,
-      text,
-      sound: template.sound,
-    };
-  });
+  const chosenSeriesId = seriesIds[Math.floor(Math.random() * seriesIds.length)];
+  return gunitaLevel.items
+    .filter((item) => item.seriesId === chosenSeriesId)
+    .map((item) => ({ ...item, consonantId: chosenSeriesId }));
 }
 
 function buildHindiOppositesQuizItems() {
+  const setIndex = getSelectedHindiSetIndex();
+  const startIndex = setIndex * HINDI_SET_SIZE;
   return HINDI_OPPOSITES_PAIRS.map(([text, oppositeText], index) => ({
     id: `hindi-opposites-${index}`,
     text,
@@ -1265,6 +2077,41 @@ function buildHindiOppositesQuizItems() {
     audio: HINDI_OPPOSITES_AUDIO_MAP[text] || null,
     oppositeText,
     oppositeAudio: HINDI_OPPOSITES_AUDIO_MAP[oppositeText] || null,
+  })).slice(startIndex, startIndex + HINDI_SET_SIZE);
+}
+
+function buildHindiSynonymsQuizItems() {
+  const questions = getHindiSynonymItems().flatMap((item) =>
+    (item.focusPair ? item.synonyms : shuffle(item.synonyms).slice(0, 2)).map((answerText, questionIndex) => ({
+      ...item,
+      id: `${item.id}-question-${questionIndex}`,
+      answerText,
+    })),
+  );
+  return shuffle(questions);
+}
+
+function buildHindiConversationQuizItems() {
+  return HINDI_CONVERSATIONS.flatMap((conversation) =>
+    conversation.lines.map((line, lineIndex) => ({
+      id: `hindi-conversation-${conversation.id}-${lineIndex}`,
+      text: line.hindi,
+      sound: line.hindi,
+      roman: line.roman,
+      english: `${line.speaker}: ${line.english}`,
+      conversationTitle: conversation.title,
+    })),
+  );
+}
+
+function buildHindiPronounQuizItems() {
+  return getHindiPronounItems().map((item) => ({
+    id: `${item.id}-quiz`,
+    text: item.exampleHindi,
+    sound: item.exampleHindi,
+    english: item.exampleEnglish,
+    pronoun: item.text,
+    pronounEnglish: item.english,
   }));
 }
 
@@ -1287,26 +2134,17 @@ function attachHindiImageSource(imageElement, word) {
   };
 }
 
-function buildHindiOppositesSets(items) {
-  const minSetSize = 6;
-  const maxSetSize = 7;
-  const totalItems = items.length;
-  if (totalItems === 0) {
-    return [];
-  }
-
-  const setCount = Math.ceil(totalItems / maxSetSize);
-  const baseSize = Math.floor(totalItems / setCount);
-  const remainder = totalItems % setCount;
-  const sets = [];
-  let index = 0;
-  for (let setIndex = 0; setIndex < setCount; setIndex += 1) {
-    const currentSetSize = baseSize + (setIndex < remainder ? 1 : 0);
-    const normalizedSetSize = Math.min(maxSetSize, Math.max(minSetSize, currentSetSize));
-    sets.push(items.slice(index, index + normalizedSetSize));
-    index += normalizedSetSize;
-  }
-  return sets;
+function attachHindiSynonymImageSource(imageElement, word) {
+  const directPath = `hindi_synonym_images/${word}.png?v=${HINDI_SYNONYM_IMAGE_VERSION}`;
+  const encodedPath = `hindi_synonym_images/${encodeURIComponent(word)}.png?v=${HINDI_SYNONYM_IMAGE_VERSION}`;
+  imageElement.src = directPath;
+  imageElement.onerror = () => {
+    if (imageElement.src.includes(encodeURIComponent(word))) {
+      imageElement.classList.add("hidden");
+      return;
+    }
+    imageElement.src = encodedPath;
+  };
 }
 
 function prepareHindiOppositesSet(setIndex) {
@@ -1361,12 +2199,14 @@ function handleHindiOppositesSelect(side, choiceId) {
     state.quiz.index += 1;
     state.streak += 1;
     state.bestStreak = Math.max(state.bestStreak, state.streak);
-    updateStatus("Correct opposite match ✅");
+    const activeSetSize = matchState.sets[matchState.setIndex]?.length || HINDI_SET_SIZE;
+    const message = HINDI_CORRECT_MESSAGES[(state.quiz.score - 1) % HINDI_CORRECT_MESSAGES.length];
+    updateStatus(`${message} ${getHindiStarProgress(matchState.matchedIds.size, activeSetSize)}`);
   } else {
     state.quiz.mistakes += 1;
     state.quiz.mistakeById[matchState.selectedLeftId] = (state.quiz.mistakeById[matchState.selectedLeftId] || 0) + 1;
     state.streak = 0;
-    updateStatus("Not a match. Try again.");
+    updateStatus("Almost! सुनो और फिर कोशिश करो — listen and try again 💪");
   }
 
   matchState.selectedLeftId = null;
@@ -1394,7 +2234,13 @@ function renderQuizMistakeSummary() {
     const row = document.createElement("li");
     row.textContent = state.quiz.topic === "hindi_opposites_quiz"
       ? `${entry.item.text} → ${entry.item.oppositeText}: ${entry.count}`
-      : `${entry.item.text} (${getBaseSound(entry.item.sound)}): ${entry.count}`;
+      : state.quiz.topic === "hindi_synonyms_quiz"
+        ? `${entry.item.text} → ${entry.item.answerText}: ${entry.count}`
+        : state.quiz.topic === "hindi_conversations_quiz"
+          ? `${entry.item.english} → ${entry.item.text}: ${entry.count}`
+        : state.quiz.topic === "hindi_pronouns_quiz"
+          ? `${entry.item.text} → ${entry.item.english}: ${entry.count}`
+        : `${entry.item.text} (${getBaseSound(entry.item.sound)}): ${entry.count}`;
     quizMistakeSummaryList.appendChild(row);
   });
 }
@@ -1405,6 +2251,9 @@ function renderQuiz49() {
   const isNumbersQuiz = state.quiz.topic === "numbers_quiz";
   const isHindiOppositesQuiz = state.quiz.topic === "hindi_opposites_quiz";
   const isHindiOppositesPictureQuiz = state.quiz.topic === "hindi_opposites_picture_quiz";
+  const isHindiSynonymsQuiz = state.quiz.topic === "hindi_synonyms_quiz";
+  const isHindiConversationQuiz = state.quiz.topic === "hindi_conversations_quiz";
+  const isHindiPronounQuiz = state.quiz.topic === "hindi_pronouns_quiz";
   const setTotal = state.quiz.match.sets.length;
   const setIndex = state.quiz.match.setIndex;
   const activeSet = state.quiz.match.sets[setIndex] || [];
@@ -1413,6 +2262,12 @@ function renderQuiz49() {
     ? (setIndex >= setTotal - 1 ? "Finish Quiz" : "Next Set")
     : isHindiOppositesPictureQuiz
       ? "Next Picture"
+    : isHindiSynonymsQuiz
+      ? "Next Word"
+    : isHindiConversationQuiz
+      ? "Next Sentence"
+    : isHindiPronounQuiz
+      ? "Next Sentence"
     : "Next Letter";
 
   if (state.quiz.done) {
@@ -1420,13 +2275,21 @@ function renderQuiz49() {
       ? "opposites"
       : isHindiOppositesPictureQuiz
         ? "pictures"
+      : isHindiSynonymsQuiz
+        ? "words"
+      : isHindiConversationQuiz
+        ? "sentences"
+      : isHindiPronounQuiz
+        ? "sentences"
         : isNumbersQuiz
           ? "numbers"
           : "letters";
     quizStepText.textContent = `Completed all ${total} ${completedLabel}`;
     quizPrompt.textContent = "Quiz complete! Check mistakes summary below.";
+    quizLetterCard.classList.remove("conversation-quiz-prompt");
     quizLetterCard.textContent = state.quiz.mistakes === 0 ? "🎉" : "✅";
     quizOptions.innerHTML = "";
+    quizOptions.classList.remove("conversation-quiz-options");
     quizOptions.classList.remove("hidden");
     quizDropdownWrap.classList.add("hidden");
     quizAnswerSelect.innerHTML = '<option value="">Select the opposite word</option>';
@@ -1446,56 +2309,89 @@ function renderQuiz49() {
 
   quizMistakeSummary.classList.add("hidden");
   quizStepText.textContent = isHindiOppositesQuiz
-    ? `Set ${setIndex + 1} of ${setTotal} • Matched ${matchedCount}/${activeSet.length}`
+    ? `${getHindiStarProgress(matchedCount, activeSet.length)} • Matched ${matchedCount}/${activeSet.length}`
     : `Item ${state.quiz.index + 1} of ${total}`;
   quizPrompt.textContent = isGunitaQuiz
     ? "Listen to the sound and choose the correct Kannada."
     : isHindiOppositesQuiz
       ? "Match each left word with its opposite on the right."
     : isHindiOppositesPictureQuiz
-      ? "See the picture and choose its opposite word."
+      ? "Listen and choose the opposite word."
+    : isHindiSynonymsQuiz
+      ? "Which word is a synonym (समानार्थी शब्द)?"
+    : isHindiConversationQuiz
+      ? "How do you say this sentence in Hindi?"
+    : isHindiPronounQuiz
+      ? "Choose the correct English meaning for this Hindi sentence."
     : isNumbersQuiz
       ? "What is this Kannada number called?"
       : "What sound does this Kannada letter make?";
 
-  if (isHindiOppositesPictureQuiz) {
-    const imagePath = getHindiWordImagePath(item.text);
-    const encodedImagePath = `hindi_word_images/${encodeURIComponent(item.text === "नीचा" ? "नीच" : item.text)}.png`;
-    quizLetterCard.innerHTML = `<img class="quiz-picture-prompt" src="${imagePath}?v=${HINDI_IMAGE_VERSION}" alt="${item.text}" onerror="this.onerror=null;this.src='${encodedImagePath}?v=${HINDI_IMAGE_VERSION}'" />`;
+  if (isHindiPronounQuiz) {
+    quizLetterCard.innerHTML = "";
+    quizLetterCard.classList.add("conversation-quiz-prompt");
+    const context = document.createElement("span");
+    context.className = "conversation-quiz-context";
+    context.textContent = `Sarvanam: ${item.pronoun} — ${item.pronounEnglish}`;
+    const hindi = document.createElement("strong");
+    hindi.textContent = item.text;
+    quizLetterCard.appendChild(context);
+    quizLetterCard.appendChild(hindi);
+  } else if (isHindiConversationQuiz) {
+    quizLetterCard.innerHTML = "";
+    quizLetterCard.classList.add("conversation-quiz-prompt");
+    const context = document.createElement("span");
+    context.className = "conversation-quiz-context";
+    context.textContent = item.conversationTitle;
+    const english = document.createElement("strong");
+    english.textContent = item.english;
+    quizLetterCard.appendChild(context);
+    quizLetterCard.appendChild(english);
+  } else if (isHindiSynonymsQuiz) {
+    quizLetterCard.classList.remove("conversation-quiz-prompt");
+    quizLetterCard.innerHTML = "";
+    const image = document.createElement("img");
+    image.className = "quiz-picture-prompt hindi-synonym-quiz-image";
+    attachHindiSynonymImageSource(image, item.text);
+    image.alt = item.text;
+    const label = document.createElement("span");
+    label.className = "hindi-synonym-quiz-label";
+    label.textContent = `${item.text} — ${item.english}`;
+    quizLetterCard.appendChild(image);
+    quizLetterCard.appendChild(label);
+  } else if (isHindiOppositesPictureQuiz) {
+    quizLetterCard.classList.remove("conversation-quiz-prompt");
+    quizLetterCard.textContent = item.text;
   } else {
+    quizLetterCard.classList.remove("conversation-quiz-prompt");
     quizLetterCard.textContent = isHindiOppositesQuiz ? "विलोम शब्द" : isGunitaQuiz ? "🔊" : item.text;
   }
 
   quizOptions.innerHTML = "";
   quizOptions.classList.toggle("opposites-quiz-options", isHindiOppositesQuiz);
+  quizOptions.classList.toggle("conversation-quiz-options", isHindiConversationQuiz || isHindiPronounQuiz);
   quizOptions.classList.remove("hidden");
   quizDropdownWrap.classList.add("hidden");
   quizNextBtn.disabled = isHindiOppositesQuiz
     ? matchedCount !== activeSet.length
     : state.quiz.selectedOptionId === null;
-  quizPlayPromptBtn.classList.toggle("hidden", !(isGunitaQuiz || isHindiOppositesPictureQuiz));
+  quizPlayPromptBtn.classList.toggle("hidden", !(isGunitaQuiz || isHindiOppositesPictureQuiz || isHindiSynonymsQuiz || isHindiPronounQuiz));
 
   if (isHindiOppositesQuiz) {
     const grid = document.createElement("div");
     grid.className = "opposites-match-grid";
 
     const leftColumn = document.createElement("div");
-    leftColumn.className = "opposites-match-column";
+    leftColumn.className = "opposites-match-column text-only";
 
     const rightColumn = document.createElement("div");
-    rightColumn.className = "opposites-match-column";
+    rightColumn.className = "opposites-match-column text-only";
 
     state.quiz.match.leftChoices.forEach((choice) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "learn-option quiz-sound-option opposites-match-option";
       button.setAttribute("aria-label", `Select and play ${choice.text}`);
-
-      const image = document.createElement("img");
-      image.className = "opposites-match-image";
-      attachHindiImageSource(image, choice.text);
-      image.alt = choice.text;
-      image.loading = "lazy";
 
       const audioBadge = document.createElement("span");
       audioBadge.className = "opposites-audio-badge";
@@ -1505,7 +2401,6 @@ function renderQuiz49() {
       wordLabel.className = "opposites-word-label";
       wordLabel.textContent = choice.text;
 
-      button.appendChild(image);
       button.appendChild(audioBadge);
       button.appendChild(wordLabel);
       if (state.quiz.match.matchedIds.has(choice.id)) {
@@ -1524,12 +2419,6 @@ function renderQuiz49() {
       button.className = "learn-option quiz-sound-option opposites-match-option";
       button.setAttribute("aria-label", `Select and play ${choice.text}`);
 
-      const image = document.createElement("img");
-      image.className = "opposites-match-image";
-      attachHindiImageSource(image, choice.text);
-      image.alt = choice.text;
-      image.loading = "lazy";
-
       const audioBadge = document.createElement("span");
       audioBadge.className = "opposites-audio-badge";
       audioBadge.textContent = "🔊";
@@ -1538,7 +2427,6 @@ function renderQuiz49() {
       wordLabel.className = "opposites-word-label";
       wordLabel.textContent = choice.text;
 
-      button.appendChild(image);
       button.appendChild(audioBadge);
       button.appendChild(wordLabel);
       if (state.quiz.match.matchedIds.has(choice.id)) {
@@ -1561,7 +2449,14 @@ function renderQuiz49() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "learn-option quiz-sound-option";
-    button.textContent = isGunitaQuiz ? choice.text : `🔊 ${choice.text || choice.sound}`;
+    button.classList.toggle("conversation-quiz-option", isHindiConversationQuiz || isHindiPronounQuiz);
+    button.textContent = isHindiPronounQuiz
+      ? choice.text
+      : isGunitaQuiz
+      ? choice.text
+      : isNumbersQuiz
+        ? `${choice.text} — ${choice.sound}`
+        : `🔊 ${choice.text || choice.sound}`;
     if (choice.id === state.quiz.selectedOptionId) {
       button.classList.add("selected");
     }
@@ -1597,7 +2492,13 @@ function handleQuiz49Choice(choiceId) {
   renderQuiz49();
   updateStatus(state.quiz.topic === "hindi_opposites_picture_quiz"
     ? "Option selected. Tap Next Picture."
-    : "Option selected. Tap Next Letter.");
+    : state.quiz.topic === "hindi_synonyms_quiz"
+      ? "Option selected. Tap Next Word."
+    : state.quiz.topic === "hindi_conversations_quiz"
+      ? "Hindi sentence selected. Tap Next Sentence to check it."
+    : state.quiz.topic === "hindi_pronouns_quiz"
+      ? "English sentence selected. Tap Next Sentence to check it."
+      : "Option selected. Tap Next Letter.");
 }
 
 function advanceQuiz49() {
@@ -1621,7 +2522,8 @@ function advanceQuiz49() {
 
     state.quiz.done = true;
     renderQuiz49();
-    updateStatus("Hindi Opposites Match complete 🎉 Review mistake summary below.");
+    showHindiCelebration(`Quiz Set ${getSelectedHindiSetNumber()} complete!`);
+    updateStatus("Quiz complete — you collected every star! शानदार! 🏆");
     return;
   }
 
@@ -1635,7 +2537,13 @@ function advanceQuiz49() {
   }
 
   if (!state.quiz.selectedOptionId) {
-    updateStatus("Select an option first, then tap Next Letter.");
+    updateStatus(state.quiz.topic === "hindi_synonyms_quiz"
+      ? "Select a synonym first, then tap Next Word."
+      : state.quiz.topic === "hindi_conversations_quiz"
+        ? "Choose the Hindi sentence first, then tap Next Sentence."
+      : state.quiz.topic === "hindi_pronouns_quiz"
+        ? "Choose an English sentence first, then tap Next Sentence."
+      : "Select an option first, then continue.");
     return;
   }
 
@@ -1656,33 +2564,70 @@ function advanceQuiz49() {
   if (state.quiz.index >= state.quiz.items.length) {
     state.quiz.done = true;
     renderQuiz49();
-    updateStatus("Quiz complete 🎉 Review mistake summary below.");
+    if (state.quiz.topic === "hindi_opposites_picture_quiz") {
+      showHindiCelebration(`Picture Quiz Set ${getSelectedHindiSetNumber()} complete!`);
+      updateStatus("Picture quiz complete! बहुत बढ़िया! 🎉");
+    } else if (state.quiz.topic === "hindi_synonyms_quiz") {
+      showHindiCelebration(`Synonyms Quiz Set ${getSelectedHindiSynonymSetNumber()} complete!`);
+      updateStatus(`All ${state.quiz.items.length} synonym questions completed! शानदार! 🏆`);
+    } else if (state.quiz.topic === "hindi_conversations_quiz") {
+      showHindiCelebration("Conversation quiz complete!");
+      updateStatus(`All ${state.quiz.items.length} English-to-Hindi sentence questions completed! शानदार! 💬`);
+    } else if (state.quiz.topic === "hindi_pronouns_quiz") {
+      showHindiCelebration("Pronoun quiz complete!");
+      updateStatus(`All ${state.quiz.items.length} Hindi-to-English pronoun questions completed! शानदार! 🙋`);
+    } else {
+      updateStatus("Quiz complete 🎉 Review mistake summary below.");
+    }
     return;
   }
 
   const nextItem = currentQuizItem();
   state.quiz.choices = buildQuiz49Choices(nextItem);
   renderQuiz49();
-  updateStatus(state.quiz.topic === "hindi_opposites_picture_quiz" ? "Moved to next picture." : "Moved to next letter.");
+  updateStatus(state.quiz.topic === "hindi_opposites_picture_quiz"
+    ? isCorrect
+      ? "सही जवाब! Great choice — here comes the next picture 🌟"
+      : `Good try! The opposite was ${item.oppositeText}. Here comes the next picture 💪`
+    : state.quiz.topic === "hindi_synonyms_quiz"
+      ? isCorrect
+        ? "सही जवाब! That is a synonym 🌼"
+        : `Good try! A synonym of ${item.text} is ${item.answerText}.`
+    : state.quiz.topic === "hindi_conversations_quiz"
+      ? isCorrect
+        ? "सही जवाब! That is the Hindi sentence 🌟"
+        : `Good try! The Hindi sentence is: ${item.text}`
+    : state.quiz.topic === "hindi_pronouns_quiz"
+      ? isCorrect
+        ? "सही जवाब! You matched the English sentence 🌟"
+        : `Good try! The English meaning is: ${item.english}`
+    : "Moved to next letter.");
 }
 
 function startQuiz49Mode() {
   state.quiz.topic = quizTopicSelect?.value || "gunita_quiz";
+  configureHindiSetSelect(state.quiz.topic);
   const isGunitaQuiz = state.quiz.topic === "gunita_quiz";
   const isNumbersQuiz = state.quiz.topic === "numbers_quiz";
-  const isOttaksharaQuiz = state.quiz.topic === "ottakshara_quiz";
   const isHindiOppositesQuiz = state.quiz.topic === "hindi_opposites_quiz";
   const isHindiOppositesPictureQuiz = state.quiz.topic === "hindi_opposites_picture_quiz";
+  const isHindiSynonymsQuiz = state.quiz.topic === "hindi_synonyms_quiz";
+  const isHindiConversationQuiz = state.quiz.topic === "hindi_conversations_quiz";
+  const isHindiPronounQuiz = state.quiz.topic === "hindi_pronouns_quiz";
   const activeItems = isGunitaQuiz
     ? buildGunitaQuizItems()
     : isHindiOppositesQuiz
       ? buildHindiOppositesQuizItems()
     : isHindiOppositesPictureQuiz
       ? shuffle(buildHindiOppositesQuizItems())
+    : isHindiSynonymsQuiz
+      ? buildHindiSynonymsQuizItems()
+    : isHindiConversationQuiz
+      ? shuffle(buildHindiConversationQuizItems())
+    : isHindiPronounQuiz
+      ? shuffle(buildHindiPronounQuizItems())
     : isNumbersQuiz
       ? shuffle(getLevelById("numbers")?.items || [])
-      : isOttaksharaQuiz
-        ? shuffle(getLevelById("ottakshara")?.items || [])
       : shuffle(getLevelById("varnamaale")?.items || []);
   if (activeItems.length === 0) {
     state.quiz.items = [];
@@ -1697,11 +2642,15 @@ function startQuiz49Mode() {
       ? "Hindi Opposites"
       : isHindiOppositesPictureQuiz
         ? "Hindi Opposites Pictures"
+      : isHindiSynonymsQuiz
+        ? "Hindi Synonyms"
+      : isHindiConversationQuiz
+        ? "Hindi Conversations"
+      : isHindiPronounQuiz
+        ? "Hindi Pronouns"
       : isNumbersQuiz
         ? "Numbers"
-        : isOttaksharaQuiz
-          ? "Ottakshara"
-          : "Varnamaale";
+        : "Varnamaale";
     updateStatus(`Quiz setup failed: ${missingLabel} data missing.`);
     return;
   }
@@ -1726,25 +2675,29 @@ function startQuiz49Mode() {
   state.quiz.match.selectedRightId = null;
 
   if (isHindiOppositesQuiz) {
-    state.quiz.match.sets = buildHindiOppositesSets(state.quiz.items);
+    state.quiz.match.sets = [state.quiz.items];
     prepareHindiOppositesSet(0);
   }
 
   quizTitle.textContent = isGunitaQuiz
     ? "Gunitaakshara Quiz"
     : isHindiOppositesQuiz
-      ? "Hindi Opposites Match"
+      ? `Hindi Opposites Match — Set ${getSelectedHindiSetNumber()}`
     : isHindiOppositesPictureQuiz
-      ? "Hindi Opposites Picture Quiz"
+      ? `Hindi Opposites Picture Quiz — Set ${getSelectedHindiSetNumber()}`
+    : isHindiSynonymsQuiz
+      ? `Hindi Synonyms Picture Quiz — Set ${getSelectedHindiSynonymSetNumber()}`
+    : isHindiConversationQuiz
+      ? "Hindi Conversations: English to Hindi"
+    : isHindiPronounQuiz
+      ? "Hindi Pronouns: Hindi to English"
     : isNumbersQuiz
       ? "Kannada Numbers Quiz"
-      : isOttaksharaQuiz
-        ? "Ottakshara Quiz"
       : "Letter Quiz (49)";
   renderQuiz49();
   if (isGunitaQuiz) {
     speakItem(state.quiz.items[0]);
-    updateStatus("Gunitaakshara Quiz started: one consonant across all 12 signs.");
+    updateStatus("Gunitaakshara Quiz started: one of the 10 consonants across all 12 signs.");
     return;
   }
 
@@ -1755,17 +2708,34 @@ function startQuiz49Mode() {
 
   if (isHindiOppositesQuiz) {
     const firstSetSize = state.quiz.match.sets[0]?.length || 0;
-    updateStatus(`Hindi Opposites Match started: Set 1 of ${state.quiz.match.sets.length} with ${firstSetSize} pairs.`);
+    updateStatus(`Hindi Opposites Match Set ${getSelectedHindiSetNumber()} started with ${firstSetSize} pairs.`);
     return;
   }
 
   if (isHindiOppositesPictureQuiz) {
-    updateStatus("Hindi Opposites Picture Quiz started: choose opposite from 4 audio options.");
+    updateStatus(`Hindi Opposites Picture Quiz Set ${getSelectedHindiSetNumber()} started: choose the opposite from 4 audio options.`);
     return;
   }
 
-  if (isOttaksharaQuiz) {
-    updateStatus("Ottakshara Quiz started: choose the correct sound and continue.");
+  if (isHindiSynonymsQuiz) {
+    speakItem(state.quiz.items[0]);
+    const wordCount = new Set(state.quiz.items.map((item) => item.text)).size;
+    if (state.quiz.items[0]?.focusPair) {
+      updateStatus(`Hyper Focus quiz started: ${state.quiz.items.length} selected relationships across ${wordCount} words.`);
+    } else {
+      updateStatus(`Synonyms Set ${getSelectedHindiSynonymSetNumber()} quiz started: ${state.quiz.items.length} questions, 2 questions per word.`);
+    }
+    return;
+  }
+
+  if (isHindiConversationQuiz) {
+    updateStatus(`Conversation quiz started with ${state.quiz.items.length} English prompts. Choose the matching Hindi sentence.`);
+    return;
+  }
+
+  if (isHindiPronounQuiz) {
+    speakItem(state.quiz.items[0]);
+    updateStatus(`Pronoun quiz started with ${state.quiz.items.length} Hindi sentences. Choose the matching English sentence.`);
     return;
   }
 
@@ -1827,10 +2797,19 @@ function initControls() {
 
   levelSelect.value = KANNADA_LEVELS[0].id;
 
+  GUNITA_BASE_LETTERS.forEach((base) => {
+    const option = document.createElement("option");
+    const firstForm = GUNITA_ITEMS.find((item) => item.seriesId === base.id);
+    option.value = base.id;
+    option.textContent = `${base.text} — ${firstForm?.sound || base.id}`;
+    gunitaSeriesSelect.appendChild(option);
+  });
+
   languageSelect.addEventListener("change", () => {
     syncLanguageDependentTopics();
     applyTopMode(modeSelect.value);
   });
+  hindiSetSelect.addEventListener("change", () => applyTopMode(modeSelect.value));
   modeSelect.addEventListener("change", () => applyTopMode(modeSelect.value));
   levelSelect.addEventListener("change", buildRound);
   itemCountSelect.addEventListener("change", buildRound);
@@ -1848,6 +2827,11 @@ function initControls() {
     loadGameSet(state.gamePageIndex + 1);
   });
   learnTopicSelect.addEventListener("change", startLearningMode);
+  gunitaSeriesSelect.addEventListener("change", () => {
+    if (state.mode === "learn" && learnTopicSelect.value === "gunita") {
+      startLearningMode();
+    }
+  });
   quizTopicSelect.addEventListener("change", () => {
     if (state.mode === "quiz49") {
       startQuiz49Mode();
@@ -1863,6 +2847,12 @@ function initControls() {
     if (state.mode === "quiz49" && state.quiz.topic === "hindi_opposites_picture_quiz" && item) {
       speakItem(item);
     }
+    if (state.mode === "quiz49" && state.quiz.topic === "hindi_synonyms_quiz" && item) {
+      speakItem(item);
+    }
+    if (state.mode === "quiz49" && state.quiz.topic === "hindi_pronouns_quiz" && item) {
+      speakItem(item);
+    }
   });
   quizAnswerSelect.addEventListener("change", () => {
     if (state.mode === "quiz49" && state.quiz.topic === "hindi_opposites_quiz") {
@@ -1870,6 +2860,7 @@ function initControls() {
     }
   });
   learnRetryMistakesBtn.addEventListener("click", startBoostupMatch);
+  learnPreviousBtn.addEventListener("click", goToPreviousLearningItem);
   learnPrimaryBtn.addEventListener("click", advanceLearning);
   tracePlayBtn.addEventListener("click", playTraceAnimation);
   traceGif.addEventListener("error", () => {

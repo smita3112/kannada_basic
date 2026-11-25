@@ -288,6 +288,27 @@ button {
   margin-top: 0;
 }
 
+.gunita-series-control {
+  display: grid;
+  grid-template-columns: auto minmax(150px, 240px);
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+  padding: 0.75rem;
+  border: 1px solid #c4b5fd;
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+
+.gunita-series-control label {
+  font-weight: 700;
+}
+
+.gunita-series-control select {
+  width: 100%;
+  background: var(--card);
+}
+
 .learn-card {
   margin-top: 0.6rem;
   border: 1px solid var(--border);
@@ -298,6 +319,29 @@ button {
   place-items: center;
   font-size: 2.4rem;
   font-weight: 700;
+}
+
+.number-learning-content,
+.number-option-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.number-numeral {
+  font-size: 2.7rem;
+}
+
+.number-name {
+  font-size: 1.45rem;
+  color: var(--accent);
+}
+
+.number-option-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .quiz-picture-prompt {
@@ -403,6 +447,31 @@ button {
   grid-template-rows: 1fr auto;
   gap: 0.25rem;
   align-items: end;
+  border: 2px solid #f9a8d4;
+  background: linear-gradient(145deg, #fff7ed, #fdf2f8);
+  box-shadow: 0 6px 0 #fbcfe8;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.hindi-learning-pair-option:nth-child(2) {
+  border-color: #93c5fd;
+  background: linear-gradient(145deg, #eff6ff, #ecfeff);
+  box-shadow: 0 6px 0 #bfdbfe;
+}
+
+.hindi-learning-pair-option:hover {
+  transform: translateY(-3px) rotate(-0.5deg);
+  box-shadow: 0 9px 0 #fbcfe8;
+}
+
+.hindi-learning-pair-option:nth-child(2):hover {
+  transform: translateY(-3px) rotate(0.5deg);
+  box-shadow: 0 9px 0 #bfdbfe;
+}
+
+.hindi-learning-pair-option:active {
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 2px 0 #fbcfe8;
 }
 
 .hindi-learning-pair-image {
@@ -416,8 +485,9 @@ button {
 .hindi-learning-pair-label {
   justify-self: center;
   font-weight: 800;
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.1;
+  text-align: center;
 }
 
 .hindi-learning-audio-badge {
@@ -430,6 +500,202 @@ button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: rgb(255 255 255 / 92%);
+}
+
+.learn-options.hindi-synonym-learning-grid {
+  grid-template-columns: minmax(220px, 1.25fr) minmax(180px, 0.75fr);
+  align-items: stretch;
+}
+
+.hindi-synonym-picture {
+  min-height: 260px;
+  padding: 0.35rem;
+  overflow: hidden;
+  border: 2px solid #86efac;
+  background: #f0fdf4;
+  box-shadow: 0 6px 0 #bbf7d0;
+}
+
+.hindi-synonym-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.hindi-synonym-list {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.hindi-synonym-list.focus-pair {
+  grid-template-rows: none;
+  grid-auto-rows: 1fr;
+}
+
+.hindi-synonym-chip {
+  min-height: 72px;
+  padding: 0.5rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 800;
+  border: 2px solid #c4b5fd;
+  background: linear-gradient(145deg, #faf5ff, #eff6ff);
+  box-shadow: 0 4px 0 #ddd6fe;
+}
+
+.hindi-synonym-chip:hover,
+.hindi-synonym-picture:hover {
+  transform: translateY(-2px);
+}
+
+.hindi-synonym-quiz-image {
+  max-height: 210px;
+}
+
+.hindi-synonym-quiz-label {
+  font-size: 1.55rem;
+  margin: 0.35rem 0.7rem 0.35rem 0;
+}
+
+.learn-options.hindi-pronoun-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hindi-pronoun-example {
+  min-height: 150px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.75rem;
+  border: 2px solid #93c5fd;
+  background: linear-gradient(145deg, #eff6ff, #faf5ff);
+  box-shadow: 0 5px 0 #bfdbfe;
+  text-align: left;
+}
+
+.hindi-pronoun-example:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #bfdbfe;
+}
+
+.hindi-pronoun-example-hindi {
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  line-height: 1.35;
+}
+
+.hindi-pronoun-example-english {
+  padding-top: 0.65rem;
+  border-top: 1px dashed #93c5fd;
+  color: #374151;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.learn-options.hindi-conversation-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.conversation-illustration {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border: 2px solid #f9a8d4;
+  border-radius: 16px;
+  box-shadow: 0 6px 0 #fbcfe8;
+}
+
+.conversation-play-all {
+  justify-self: start;
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.conversation-line-card {
+  padding: 0.9rem 1rem;
+  border: 2px solid #c4b5fd;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #faf5ff, #eff6ff);
+  box-shadow: 0 4px 0 #ddd6fe;
+}
+
+.conversation-line-card:nth-of-type(odd) {
+  border-color: #f9a8d4;
+  background: linear-gradient(145deg, #fff7ed, #fdf2f8);
+  box-shadow: 0 4px 0 #fbcfe8;
+}
+
+.conversation-line-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.conversation-line-header strong {
+  color: #6d28d9;
+  font-size: 1rem;
+}
+
+.conversation-audio-button {
+  border-color: #7c3aed;
+  color: #5b21b6;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.conversation-hindi {
+  margin: 0.55rem 0 0;
+  font-size: clamp(1.45rem, 4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.conversation-english {
+  margin: 0.45rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px dashed #c4b5fd;
+  color: #374151;
+  font-size: 1rem;
+}
+
+.conversation-quiz-prompt {
+  padding: 1rem;
+  text-align: center;
+  font-size: clamp(1.25rem, 4vw, 1.8rem);
+  line-height: 1.35;
+}
+
+.conversation-quiz-context {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #7c3aed;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.learn-options.conversation-quiz-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.conversation-quiz-option {
+  min-height: 88px;
+  padding: 0.7rem;
+  font-size: 1.2rem;
+  line-height: 1.4;
 }
 
 .quiz-sound-option {
@@ -507,6 +773,10 @@ button {
   grid-auto-rows: 188px;
 }
 
+.opposites-match-column.text-only {
+  grid-auto-rows: 86px;
+}
+
 .opposites-match-option {
   height: 100%;
   font-size: 1rem;
@@ -519,6 +789,18 @@ button {
   align-items: stretch;
   gap: 0.2rem;
   background: #fff;
+  border-width: 2px;
+  box-shadow: 0 3px 0 #ddd6fe;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+.opposites-match-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #c4b5fd;
+}
+
+.opposites-match-option .opposites-word-label {
+  margin-top: 0.9rem;
 }
 
 .opposites-match-image {
@@ -597,6 +879,103 @@ select:focus-visible,
   flex-wrap: wrap;
 }
 
+.hindi-active .header {
+  padding: 1rem 1.2rem;
+  border: 2px solid #f9a8d4;
+  border-radius: 18px;
+  background: linear-gradient(120deg, #fef3c7, #fce7f3 48%, #dbeafe);
+}
+
+.hindi-active .header h1::before {
+  content: "🌈 ";
+}
+
+.hindi-active #learnPanel,
+.hindi-active #quizPanel {
+  border: 2px solid #c4b5fd;
+  background: linear-gradient(180deg, #ffffff, #fffbeb);
+}
+
+.hindi-celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  overflow: hidden;
+  background: rgb(76 29 149 / 12%);
+  animation: celebration-fade 2.8s ease forwards;
+}
+
+.hindi-celebration-card {
+  display: grid;
+  gap: 0.45rem;
+  text-align: center;
+  padding: 1.35rem 2rem;
+  border: 3px solid #f59e0b;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #fff7ed, #fdf2f8, #eff6ff);
+  box-shadow: 0 20px 60px rgb(76 29 149 / 28%);
+  font-size: 1.2rem;
+  animation: celebration-pop 450ms cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.hindi-celebration-card strong {
+  color: #6d28d9;
+  font-size: clamp(1.35rem, 5vw, 2rem);
+}
+
+.hindi-celebration-icons {
+  font-size: 1.5rem;
+  letter-spacing: 0.2rem;
+}
+
+.hindi-celebration-particle {
+  position: absolute;
+  top: -10%;
+  font-size: 1.8rem;
+  animation: celebration-fall 2.4s ease-in forwards;
+}
+
+@keyframes celebration-pop {
+  from {
+    transform: scale(0.4) rotate(-4deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes celebration-fall {
+  from {
+    transform: translateY(0) rotate(0);
+  }
+  to {
+    transform: translateY(115vh) rotate(540deg);
+  }
+}
+
+@keyframes celebration-fade {
+  0%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hindi-celebration,
+  .hindi-celebration-card,
+  .hindi-celebration-particle {
+    animation: none;
+  }
+}
+
 @media (max-width: 760px) {
   .layout-shell {
     grid-template-columns: 1fr;
@@ -612,5 +991,17 @@ select:focus-visible,
 
   .learn-main-grid {
     grid-template-columns: 1fr;
+  }
+
+  .learn-options.hindi-synonym-learning-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learn-options.conversation-quiz-options {
+    grid-template-columns: 1fr;
+  }
+
+  .hindi-synonym-picture {
+    min-height: 210px;
   }
 }

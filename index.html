@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kannada Letters Learning</title>
-    <link rel="stylesheet" href="styles.css?v=20260805c" />
+    <link rel="stylesheet" href="styles.css?v=20261023c" />
   </head>
   <body>
     <main class="app">
@@ -22,6 +22,13 @@
               <option value="hindi">Hindi</option>
             </select>
 
+            <label id="hindiSetLabel" for="hindiSetSelect" class="hindi-only hidden">Learning &amp; Quiz Set</label>
+            <select id="hindiSetSelect" class="hindi-only hidden">
+              <option value="0" selected>🌟 Set 1 — Starter Stars</option>
+              <option value="1">🚀 Set 2 — Word Explorers</option>
+              <option value="2">🏆 Set 3 — Opposite Champions</option>
+            </select>
+
             <label for="modeSelect">Mode</label>
             <select id="modeSelect">
               <option value="learn" selected>Learning Mode</option>
@@ -30,22 +37,28 @@
 
             <label for="learnTopicSelect" class="learn-only hidden">Learning Mode</label>
             <select id="learnTopicSelect" class="learn-only hidden">
-              <option value="gunita" selected>Gunitaakshara</option>
+              <option value="gunita" selected>Gunitaakshara (10 Letters)</option>
+              <option value="ottakshara">Ottakshara</option>
               <option value="varnamaale_all">Varnamaale (All)</option>
               <option value="varnamaale_swara">Varnamaale (Swara)</option>
               <option value="varnamaale_vyanjana">Varnamaale (Vyanjana)</option>
-              <option value="numbers">Kannada Numbers (0-10)</option>
+              <option value="numbers">Kannada Numbers (0-20)</option>
               <option value="hindi_opposites_learning">Hindi Opposites (Pictures + Audio)</option>
+              <option value="hindi_synonyms_learning">Hindi Synonyms (Pictures + Audio)</option>
+              <option value="hindi_pronouns_learning">Hindi Sarvanam / Pronouns</option>
+              <option value="hindi_conversations_learning">Hindi Conversations (Audio + English)</option>
             </select>
 
             <label for="quizTopicSelect" class="quiz-only hidden">Quiz Topic</label>
             <select id="quizTopicSelect" class="quiz-only hidden">
-              <option value="gunita_quiz" selected>Gunitaakshara Quiz</option>
+              <option value="gunita_quiz" selected>Gunitaakshara Quiz (10 Letters)</option>
               <option value="varnamaale_quiz">Varnamaale Quiz</option>
-              <option value="ottakshara_quiz">Ottakshara Quiz</option>
               <option value="numbers_quiz">Kannada Numbers Quiz</option>
               <option value="hindi_opposites_quiz">Hindi Opposites Match</option>
               <option value="hindi_opposites_picture_quiz">Hindi Opposites Picture Quiz</option>
+              <option value="hindi_synonyms_quiz">Hindi Synonyms Picture Quiz</option>
+              <option value="hindi_pronouns_quiz">Hindi Pronouns: Hindi to English</option>
+              <option value="hindi_conversations_quiz">Hindi Conversations: English to Hindi</option>
             </select>
 
             <label for="levelSelect" class="game-only">Level</label>
@@ -130,6 +143,11 @@
 
             <div id="learnMainGrid" class="learn-main-grid">
               <section class="learn-content-panel">
+                <div id="gunitaSeriesControl" class="gunita-series-control hidden">
+                  <label for="gunitaSeriesSelect">Choose a letter</label>
+                  <select id="gunitaSeriesSelect" aria-label="Choose a Gunitaakshara letter"></select>
+                </div>
+
                 <p><strong>Listen and repeat</strong></p>
                 <div id="learnCard" class="learn-card"></div>
 
@@ -138,6 +156,7 @@
                 <div id="learnOptions" class="learn-options"></div>
 
                 <div class="learn-actions">
+                  <button id="learnPreviousBtn" type="button">Previous</button>
                   <button id="learnPrimaryBtn" type="button">Next</button>
                   <button id="learnRetryMistakesBtn" class="hidden" type="button">Boostup Match</button>
                 </div>
@@ -189,8 +208,8 @@
       </div>
     </main>
 
-    <script src="data.js?v=20260802o"></script>
+    <script src="data.js?v=20261023c"></script>
     <script src="trace-map.js?v=20260802o"></script>
-    <script src="app.js?v=20260805c"></script>
+    <script src="app.js?v=20261123a"></script>
   </body>
 </html>

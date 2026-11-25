@@ -9,7 +9,7 @@ A simple offline web app to help kids practice Kannada matching:
 ## Included levels
 
 - Varnamaale (full)
-- Gunitaakshara (`ಕ` series)
+- Gunitaakshara (10 selected consonant series, including `ಪ`, `ತ`, and `ಥ`)
 - Ottakshara (basic conjuncts)
 
 ## Modes
@@ -17,11 +17,12 @@ A simple offline web app to help kids practice Kannada matching:
 - `Match Game`: classic left-right matching
 - `Learning Mode` dropdown options:
   - `Gunitaakshara`
+  - `Ottakshara`
   - `Varnamaale (All)`
   - `Varnamaale (Swara)`
   - `Varnamaale (Vyanjana)`
-- In `Gunitaakshara`, vowel signs are color-highlighted and shown as:
-  - `ಕ + sign = full form`
+- In `Gunitaakshara`, vowel signs are color-highlighted and shown with the active base letter:
+  - `ಕ + sign = full form`, `ಖ + sign = full form`, etc.
 - After a Gunitaakshara lesson, use `Practice Mistakes` to retry only missed letters.
 - In `Varnamaale` learning, writing animation prototype is available for starter letters:
   - `ಅ ಆ ಇ ಈ ಉ ಊ ಕ ಖ ಗ`
@@ -88,3 +89,4 @@ Example mapping in `data.js`:
 - Record one clear syllable per file with a short pause at end.
 - Use a quiet room and hold phone mic at consistent distance.
 - Keep each clip around `0.5s` to `1.2s` for quick response.
+let it be more fun!
